@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shift_schedule/api/sheets/schedule_sheets_api.dart';
 import 'package:shift_schedule/pages/home_page.dart';
 import 'package:shift_schedule/provider/employee_provider.dart';
 
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  ScheduleSheetsApi.init();
+  ;
   runApp(const MyApp());
 }
 

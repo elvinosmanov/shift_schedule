@@ -1,5 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:gsheets/gsheets.dart';
-import 'package:shift_schedule/database/database_helper.dart';
+import 'package:shift_schedule/models/employee.dart';
 
 class ScheduleSheetsApi {
   static const _credentials = r'''
@@ -20,39 +21,35 @@ class ScheduleSheetsApi {
 
   static final _gsheets = GSheets(_credentials);
 
-  static Future init() async {
-    final isExist = await DatabaseHelper.instance.doesDatabaseExist();
+  static Future fetchAllEmployees() async {
     final spreadsheet = await _gsheets.spreadsheet(_spreadsheetId);
     final scheduleSheet = _getWorkSheet(spreadsheet, title: 'Sheet1');
-    bool isUpdated = true;
-    int updatedDate = 0;
-    if (isExist) {
-      await DatabaseHelper.instance.deleteDatabases();
 
-      final cell = await scheduleSheet.cells.cell(row: 2, column: 1);
-       updatedDate = int.parse(cell.value);
-      final date = await DatabaseHelper.instance.getUpdatedDate();
-      if (updatedDate != date) {
-        isUpdated = false;
-        await DatabaseHelper.instance.createUpdatedDate(updatedDate);
+    try {
+      var values = await scheduleSheet.values.allRows();
+      var numRows = values.length;
+      List<Employee> employeeList = [];
+      for (var i = 1; i < numRows - 3; i++) {
+        final dataList = await scheduleSheet.values.rowByKey(i, fromColumn: 1);
+        employeeList.add(Employee.fromList(dataList!));
       }
+      return employeeList;
+    } catch (e) {
+      debugPrint(e.toString());
     }
-    if (!isExist || !isUpdated) {
-      try {
-        var values = await scheduleSheet.values.allRows();
-        var numRows = values.length;
-        for (var i = 1; i < numRows - 3; i++) {
-          final dataList = await scheduleSheet.values.rowByKey(i, fromColumn: 1);
-          if (!isUpdated) {
-            await DatabaseHelper.instance.updateEmployeeFromList(dataList!);
-          } else {
-            await DatabaseHelper.instance.createEmployeeFromList(dataList!);
-            await DatabaseHelper.instance.createUpdatedDate(updatedDate);
-          }
-        }
-      } catch (e) {
-        print('Init error: $e');
-      }
+  }
+
+  static Future fetchUpdatedDate() async {
+    final spreadsheet = await _gsheets.spreadsheet(_spreadsheetId);
+    final scheduleSheet = _getWorkSheet(spreadsheet, title: 'Sheet1');
+
+    try {
+      var values = await scheduleSheet.values.value(row: 2, column: 1);
+      // var values = await scheduleSheet.cells.cell(row: 2, column: 1);
+      int date = int.parse(values);
+      return date;
+    } catch (e) {
+      debugPrint(e.toString());
     }
   }
 

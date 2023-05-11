@@ -23,8 +23,6 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  // List allShiftDays = [];
-
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<EmployeesProvider>();
@@ -62,10 +60,12 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   Expanded(child: Builder(builder: (context) {
-                    provider.calculateShift();
+    context.read<EmployeesProvider>().calculateShift();
+
                     return ListView.builder(
                       itemCount: provider.dailyShiftsList.length,
                       itemBuilder: (context, index) {
+                        print(index);
                         return ShiftListItem(dailyShifts: provider.dailyShiftsList[index]);
                       },
                     );
