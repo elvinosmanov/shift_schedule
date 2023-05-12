@@ -27,9 +27,9 @@ class ScheduleSheetsApi {
 
     try {
       var values = await scheduleSheet.values.allRows();
-      var numRows = values.length;
+      // var numRows = values.length;
       List<Employee> employeeList = [];
-      for (var i = 1; i < numRows - 3; i++) {
+      for (var i = 1; i < int.parse(values.last.first); i++) {
         final dataList = await scheduleSheet.values.rowByKey(i, fromColumn: 1);
         employeeList.add(Employee.fromList(dataList!));
       }

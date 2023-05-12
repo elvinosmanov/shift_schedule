@@ -1,10 +1,17 @@
+import 'dart:math';
+
+import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:shift_schedule/models/shift_model.dart';
 
-import '../models/employee.dart';
+import 'package:shift_schedule/ui/themes.dart';
+
 import '../provider/employee_provider.dart';
+import '../widgets/employee_schedule_card.dart';
+import '../widgets/loading_employee.dart';
+import '../widgets/schedule_date_widget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -15,7 +22,9 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     context.read<EmployeesProvider>().getAllEmployees();
@@ -24,107 +33,134 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final provider = context.watch<EmployeesProvider>();
-    return Scaffold(
-      appBar: AppBar(),
-      body: provider.employees.isEmpty
-          ? const CircularProgressIndicator()
-          : Padding(
-              padding: const EdgeInsets.only(left: 8.0, right: 8),
-              child: Column(
-                children: [
-                  DropdownButton<Employee>(
-                    value: provider.selectedEmployee,
-                    onChanged: (Employee? newValue) {
-                      provider.selectedEmployee = newValue;
-                    },
-                    items: provider.employees.map((Employee employee) {
-                      return DropdownMenuItem<Employee>(
-                        value: employee,
-                        child: Text('${employee.firstName} ${employee.lastName[0]}.'),
-                      );
-                    }).toList(),
-                  ),
-                  const Center(
-                    child: Text('Hello World'),
-                  ),
-                  ElevatedButton(onPressed: () async {}, child: const Text('Press Button')),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 100),
-                    child: Row(
-                      children: const <Widget>[
-                        Expanded(child: Text('Day 🌞')),
-                        Expanded(child: Text('Night 🌒')),
-                      ],
-                    ),
-                  ),
-                  Expanded(child: Builder(builder: (context) {
-    context.read<EmployeesProvider>().calculateShift();
-
-                    return ListView.builder(
-                      itemCount: provider.dailyShiftsList.length,
-                      itemBuilder: (context, index) {
-                        print(index);
-                        return ShiftListItem(dailyShifts: provider.dailyShiftsList[index]);
-                      },
-                    );
-                  }))
-                ],
-              ),
-            ),
-    );
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
-}
 
-class ShiftListItem extends StatelessWidget {
-  ShiftListItem({
-    Key? key,
-    required this.dailyShifts,
-  }) : super(key: key);
-  DailyShifts dailyShifts;
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<EmployeesProvider>();
+    return Scaffold(
+      // appBar: AppBar(),
+      body: SafeArea(
+        child: Container(
+          child:
+              provider.dailyShiftsList.isEmpty ? const LoadingEmployee() : buildSchedule(provider),
+        ),
+      ),
+    );
+  }
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.only(right: 8.0),
-          child: Text(
-            '${DateFormat('MMM').format(dailyShifts.date)}\n${dailyShifts.date.day}',
-            textAlign: TextAlign.center,
+  Widget buildSchedule(EmployeesProvider provider) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 12.0, right: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            DateFormat.yMMMMd().format(DateTime.now()),
+            style: subHeadingStyle,
           ),
+          Text(
+            'Today',
+            style: headingStyle,
+          ),
+          _buildDatePicker(),
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,
+              itemCount: provider.dailyShiftsList.length,
+              itemBuilder: (context, index) {
+                final dailyShift = provider.dailyShiftsList[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0, top: 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      ScheduleDateWidget(date: dailyShift.date),
+                      EmployeeScheduleCards(
+                        isDayShift: true,
+                        employees: dailyShift.dayShiftEmployee,
+                      ),
+                      const SizedBox(width: 10),
+                      EmployeeScheduleCards(
+                        isDayShift: false,
+                        employees: dailyShift.nightShiftEmployee,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  DatePicker _buildDatePicker() {
+    return DatePicker(
+      DateTime.now(),
+      height: 80,
+      width: 60,
+      initialSelectedDate: DateTime.now(),
+      selectionColor: kNightColorPri,
+      selectedTextColor: Colors.white,
+      dateTextStyle: GoogleFonts.lato(
+        textStyle: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          color: Colors.grey,
         ),
-        Expanded(
-          child: Container(
-              height: 80,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: const Color.fromARGB(255, 255, 245, 132),
-              ),
-              child: Column(
-                children:
-                    dailyShifts.dayShiftEmployee.map((shift) => Text(shift!.firstName)).toList(),
-              )),
+      ),
+      dayTextStyle: GoogleFonts.lato(
+        textStyle: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: Colors.grey,
         ),
-        const SizedBox(
-          width: 4,
+      ),
+      monthTextStyle: GoogleFonts.lato(
+        textStyle: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: Colors.grey,
         ),
-        Expanded(
-          child: Container(
-              height: 80,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: const Color.fromARGB(255, 74, 104, 205)),
-              child: Column(
-                children:
-                    dailyShifts.nightShiftEmployee.map((shift) => Text(shift!.firstName)).toList(),
-              )),
-        )
-      ],
+      ),
+      onDateChange: (selectedDate) {
+        final list = _findHeightOfWidgets(selectedDate);
+        _scrollToIndex(list[0], list[1]);
+        // _selectedDate = selectedDate;
+      },
+    );
+  }
+
+  List<int> _findHeightOfWidgets(DateTime dateTime) {
+    int index = 0;
+    int count = 0;
+    final shiftList = context.read<EmployeesProvider>().dailyShiftsList;
+    while (shiftList[index].date.isBefore(dateTime)) {
+      final dailyShift = shiftList[index];
+      int maxLength = max(
+        dailyShift.dayShiftEmployee.length,
+        dailyShift.nightShiftEmployee.length,
+      );
+      count += maxLength;
+      if (shiftList.length > index + 1) {
+        index++;
+      } else {
+        break;
+      }
+    }
+    return [index, count];
+  }
+
+  void _scrollToIndex(int index, int count) {
+    _scrollController.animateTo(
+      index * 54 + count * 36,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
     );
   }
 }

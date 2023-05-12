@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shift_schedule/api/sheets/schedule_sheets_api.dart';
 import 'package:shift_schedule/models/employee.dart';
 
 import '../database/database_helper.dart';
+import '../enums/positions.dart';
 import '../extensions/shift_status_extension.dart';
 import '../models/shift_model.dart';
 
@@ -30,24 +32,32 @@ class EmployeesProvider extends ChangeNotifier {
 
   void getAllEmployees() async {
     bool hasUpdate = false;
-    final savedDate = await DatabaseHelper.getDate();
-    final date = await ScheduleSheetsApi.fetchUpdatedDate();
-    if (date != savedDate) {
-      hasUpdate = true;
-    } else {
-      hasUpdate = false;
-    }
+    bool internetResult = await InternetConnectionChecker().hasConnection;
+
+    if (internetResult == true) hasUpdate = await _checkUpdateStatus();
+
     final result = await DatabaseHelper.getEmployeeList();
-    print('resultin uzunlugu: ${result.length}');
+
     if (result.isNotEmpty && !hasUpdate) {
       employees = result;
     } else {
       employees = await ScheduleSheetsApi.fetchAllEmployees();
       DatabaseHelper.saveEmployeeList(employees);
-      DatabaseHelper.saveDate(date);
     }
     if (employees.isNotEmpty) {
       selectedEmployee = employees[0];
+      await calculateShift();
+    }
+  }
+
+  Future<bool> _checkUpdateStatus() async {
+    final savedDate = await DatabaseHelper.getDate();
+    final date = await ScheduleSheetsApi.fetchUpdatedDate();
+    if (date != savedDate) {
+      DatabaseHelper.saveDate(date);
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -59,8 +69,7 @@ class EmployeesProvider extends ChangeNotifier {
     for (var i = 0; i < daysLeft - 1; i++) {
       DailyShifts dailyShifts = DailyShifts(date: beginningOfMonth.add(Duration(days: i)));
       for (var employee in employees) {
-        print(employee.dates.length);
-        final shiftStatus = employee.dates[beginningDayOfYear + i].convertToEnum;
+        final shiftStatus = employee.dates[beginningDayOfYear + i].statusToEnum;
         if (shiftStatus == ShiftStatus.day) {
           dailyShifts.dayShiftEmployee.add(employee);
         } else if (shiftStatus == ShiftStatus.night) {
@@ -71,9 +80,7 @@ class EmployeesProvider extends ChangeNotifier {
       }
       if (dailyShifts.dayShiftEmployee.length >= 2) {
         dailyShiftsList.add(dailyShifts);
-      }
-       else {
-        print('break oldu');
+      } else {
         break;
       }
     }

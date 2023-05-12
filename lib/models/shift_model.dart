@@ -1,5 +1,5 @@
-import 'package:shift_schedule/extensions/shift_status_extension.dart';
 
+import '../enums/positions.dart';
 import 'employee.dart';
 
 class DailyShifts {
