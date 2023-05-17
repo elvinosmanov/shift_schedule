@@ -40,7 +40,6 @@ Map<String, dynamic> toMap() {
 
   factory Employee.fromJson(Map<String, dynamic> json) {
     List<String> dates = (json['dates'] as String).split(',');
-    for (var item in dates) {}
     List<dynamic> dataList = json.values.toList();
     return Employee(
       id: dataList[0],

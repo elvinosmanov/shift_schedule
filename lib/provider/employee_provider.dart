@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -10,12 +12,16 @@ import '../extensions/shift_status_extension.dart';
 import '../models/shift_model.dart';
 
 class EmployeesProvider extends ChangeNotifier {
+  DateTime beginningOfMonth = DateTime(DateTime.now().year, DateTime.now().month, 1);
   List<DailyShifts> dailyShiftsList = [];
+
+  List<double> scrollOffsets = [];
 
   List<Employee> _employees = [];
 
   List<Employee> get employees => _employees;
 
+ 
   set employees(List<Employee> value) {
     _employees = value;
     notifyListeners();
@@ -45,7 +51,8 @@ class EmployeesProvider extends ChangeNotifier {
       DatabaseHelper.saveEmployeeList(employees);
     }
     if (employees.isNotEmpty) {
-      selectedEmployee = employees[0];
+      selectedEmployee = employees[15];
+      print(selectedEmployee);
       await calculateShift();
     }
   }
@@ -63,7 +70,7 @@ class EmployeesProvider extends ChangeNotifier {
 
   calculateShift() {
     DateTime today = DateTime.now();
-    DateTime beginningOfMonth = DateTime(today.year, today.month, 1);
+
     int beginningDayOfYear = beginningOfMonth.difference(DateTime(today.year, 1, 1)).inDays;
     int daysLeft = (12 - today.month) * 31;
     for (var i = 0; i < daysLeft - 1; i++) {
@@ -83,6 +90,21 @@ class EmployeesProvider extends ChangeNotifier {
       } else {
         break;
       }
+    }
+  }
+
+  calculateScrollOfsset() {
+    int index = 0;
+    int count = 0;
+    for (var dailyShift in dailyShiftsList) {
+      int maxLength = max(
+        dailyShift.dayShiftEmployee.length,
+        dailyShift.nightShiftEmployee.length,
+      );
+      count += maxLength;
+      index++;
+
+      scrollOffsets.add(index * 54 + count * 36);
     }
   }
 }

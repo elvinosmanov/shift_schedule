@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:shift_schedule/methods/global_methods.dart';
 
 class ScheduleDateWidget extends StatelessWidget {
   const ScheduleDateWidget({
@@ -31,19 +32,15 @@ class ScheduleDateWidget extends StatelessWidget {
               color: Colors.grey[400],
             ),
           ),
-          if (_isSameDate(date, DateTime.now())) _buildCurrentDayWidget('TODAY'),
-          if (_isSameDate(date, DateTime.now().add(const Duration(days: 1))))
+          if (GlobalMethods.isSameDate(date, DateTime.now())) _buildCurrentDayWidget('TODAY'),
+          if (GlobalMethods.isSameDate(date, DateTime.now().add(const Duration(days: 1))))
             _buildCurrentDayWidget('TOMORROW')
         ],
       ),
     );
   }
 
-  bool _isSameDate(DateTime date1, DateTime date2) {
-    bool isSameDate =
-        date1.year == date2.year && date1.month == date2.month && date1.day == date2.day;
-    return isSameDate;
-  }
+  
 
   Container _buildCurrentDayWidget(String text) {
     return Container(
