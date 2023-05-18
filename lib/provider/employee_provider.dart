@@ -5,13 +5,24 @@ import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shift_schedule/api/sheets/schedule_sheets_api.dart';
 import 'package:shift_schedule/models/employee.dart';
+import 'package:shift_schedule/models/holidays.dart';
 
 import '../database/database_helper.dart';
 import '../enums/positions.dart';
 import '../extensions/shift_status_extension.dart';
+import '../methods/global_methods.dart';
 import '../models/shift_model.dart';
 
 class EmployeesProvider extends ChangeNotifier {
+  bool _isCalendarView = false;
+
+  bool get isCalendarView => _isCalendarView;
+
+  set isCalendarView(bool value) {
+    _isCalendarView = value;
+    notifyListeners();
+  }
+
   DateTime beginningOfMonth = DateTime(DateTime.now().year, DateTime.now().month, 1);
   List<DailyShifts> dailyShiftsList = [];
 
@@ -21,7 +32,6 @@ class EmployeesProvider extends ChangeNotifier {
 
   List<Employee> get employees => _employees;
 
- 
   set employees(List<Employee> value) {
     _employees = value;
     notifyListeners();
@@ -34,6 +44,17 @@ class EmployeesProvider extends ChangeNotifier {
   set selectedEmployee(Employee? value) {
     _selectedEmployee = value;
     notifyListeners();
+  }
+
+  List<Holidays?> holidays = [];
+
+  void getHolidays() async {
+    List<Holidays> result = await DatabaseHelper.getHolidays();
+    if (holidays.isEmpty) {
+      result = await ScheduleSheetsApi.fetchHolidays();
+      DatabaseHelper.saveHolidays(result);
+    }
+    holidays = result;
   }
 
   void getAllEmployees() async {
@@ -60,6 +81,7 @@ class EmployeesProvider extends ChangeNotifier {
   Future<bool> _checkUpdateStatus() async {
     final savedDate = await DatabaseHelper.getDate();
     final date = await ScheduleSheetsApi.fetchUpdatedDate();
+    await ScheduleSheetsApi.fetchHolidays();
     if (date != savedDate) {
       DatabaseHelper.saveDate(date);
       return true;
@@ -106,5 +128,12 @@ class EmployeesProvider extends ChangeNotifier {
 
       scrollOffsets.add(index * 54 + count * 36);
     }
+  }
+
+  bool isHolidayToday(DateTime date) {
+    if (holidays.isNotEmpty) {
+      return holidays.indexWhere((element) => GlobalMethods.isSameDate(element!.date, date)) >= 0;
+    }
+    return false;
   }
 }

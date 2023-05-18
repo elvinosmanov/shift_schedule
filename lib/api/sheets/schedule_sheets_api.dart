@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gsheets/gsheets.dart';
 import 'package:shift_schedule/models/employee.dart';
+import 'package:shift_schedule/models/holidays.dart';
 
 class ScheduleSheetsApi {
   static const _credentials = r'''
@@ -50,6 +51,24 @@ class ScheduleSheetsApi {
       return date;
     } catch (e) {
       debugPrint(e.toString());
+    }
+  }
+
+  static Future<List<Holidays>> fetchHolidays() async {
+    final spreadsheet = await _gsheets.spreadsheet(_spreadsheetId);
+    final scheduleSheet = _getWorkSheet(spreadsheet, title: 'holidays');
+
+    try {
+      List<Holidays> holidays=[];
+      var values = await scheduleSheet.values.allRows();
+      for (var value in values) {
+        holidays.add(Holidays.fromList(value));
+      }
+
+      return holidays;
+    } catch (e) {
+      debugPrint(e.toString());
+      return [];
     }
   }
 

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:shift_schedule/methods/global_methods.dart';
+import 'package:shift_schedule/provider/employee_provider.dart';
 
 class ScheduleDateWidget extends StatelessWidget {
   const ScheduleDateWidget({
@@ -11,6 +13,8 @@ class ScheduleDateWidget extends StatelessWidget {
   final DateTime date;
   @override
   Widget build(BuildContext context) {
+    bool isHoliday = context.read<EmployeesProvider>().isHolidayToday(date);
+
     return Container(
       margin: const EdgeInsets.only(right: 8),
       width: 60,
@@ -32,34 +36,40 @@ class ScheduleDateWidget extends StatelessWidget {
               color: Colors.grey[400],
             ),
           ),
-          if (GlobalMethods.isSameDate(date, DateTime.now())) _buildCurrentDayWidget('TODAY'),
-          if (GlobalMethods.isSameDate(date, DateTime.now().add(const Duration(days: 1))))
-            _buildCurrentDayWidget('TOMORROW')
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              if (isHoliday) _buildCurrentDayWidget('Holiday', Colors.red, Colors.white),
+              if (GlobalMethods.isSameDate(date, DateTime.now())) _buildCurrentDayWidget('TODAY'),
+              if (GlobalMethods.isSameDate(date, DateTime.now().add(const Duration(days: 1))))
+                _buildCurrentDayWidget('TOMORROW')
+            ],
+          )
         ],
       ),
     );
   }
 
-  
-
-  Container _buildCurrentDayWidget(String text) {
+  Container _buildCurrentDayWidget(
+    String text, [
+    Color? backgroundColor,
+    Color? textColor,
+  ]) {
     return Container(
       width: 20,
-      margin: const EdgeInsets.only(top: 4),
+      margin: const EdgeInsets.only(top: 4,left: 2,right: 2),
       padding: const EdgeInsets.fromLTRB(2, 4, 2, 4),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: Colors.blue[200],
+        color: backgroundColor ?? Colors.blue[200],
         borderRadius: BorderRadius.circular(4),
       ),
       child: RotatedBox(
           quarterTurns: 3,
           child: Text(
             text,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(
+                fontSize: 10, fontWeight: FontWeight.w600, color: textColor ?? Colors.black),
           )),
     );
   }

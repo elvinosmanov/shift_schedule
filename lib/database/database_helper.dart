@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shift_schedule/models/employee.dart';
 
+import '../models/holidays.dart';
+
 class DatabaseHelper {
 
 static Future<void> saveEmployeeList(List<Employee> employeeList) async {
@@ -49,4 +51,29 @@ static Future<List<Employee>> getEmployeeList() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getInt('myInt') ?? 0; // Return 0 if the value is not set
   }
+
+  static void saveHolidays(List<Holidays?> holidays) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+  List<Map<String, dynamic>> holidayMapList = holidays.map((e)=>e!.toMap()).toList();
+  final holidayString = json.encode(holidayMapList);
+
+    await prefs.setString('holidayList', holidayString);
+  }
+
+  static Future<List<Holidays>> getHolidays() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? holidayString = prefs.getString('holidayList');
+
+  if (holidayString != null) {
+    List<Map<String, dynamic>> holidayMapList = json.decode(holidayString).cast<Map<String, dynamic>>();
+
+    List<Holidays> holidayList = holidayMapList.map((e) => Holidays.fromMap(e)).toList();
+
+    return holidayList;
+  } else {
+    return [];
+  }
+  }
+
+
 }
