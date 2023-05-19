@@ -7,6 +7,7 @@ class DailyShifts {
    List<Employee?> dayShiftEmployee = [];
    List<Employee?> nightShiftEmployee = [];
    List<Employee?> regularShiftEmployee = [];
+   List<Employee?> vacationShiftEmployee = [];
   DailyShifts({
     required this.date,
   });

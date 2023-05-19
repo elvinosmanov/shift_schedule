@@ -43,7 +43,7 @@ class EmployeesProvider extends ChangeNotifier {
 
   set selectedEmployee(Employee? value) {
     _selectedEmployee = value;
-    if(value!=null) {
+    if (value != null) {
       DatabaseHelper.saveSelectedEmployee(value);
     }
     notifyListeners();
@@ -119,6 +119,8 @@ class EmployeesProvider extends ChangeNotifier {
           dailyShifts.nightShiftEmployee.add(employee);
         } else if (shiftStatus == ShiftStatus.regular) {
           dailyShifts.regularShiftEmployee.add(employee);
+        } else if (shiftStatus == ShiftStatus.vacation) {
+          dailyShifts.vacationShiftEmployee.add(employee);
         }
       }
       if (dailyShifts.dayShiftEmployee.length >= 2) {

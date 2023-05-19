@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => EmployeesProvider()
-        ..getAllEmployees()
+        ..getAllEmployees()..getHolidays()
         ,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

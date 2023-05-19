@@ -70,6 +70,24 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                   if (index >= 0) {
                     color = kNightColorPri;
                     shiftStatus = 'Night';
+                  } else {
+                    int index = result.regularShiftEmployee.indexWhere(
+                      (value) =>
+                          value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
+                    );
+                    if (index >= 0) {
+                      color = Colors.green[200]!;
+                      shiftStatus = 'Regular';
+                    }else {
+                    int index = result.vacationShiftEmployee.indexWhere(
+                      (value) =>
+                          value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
+                    );
+                    if (index >= 0) {
+                      color = kNightColorSL;
+                      shiftStatus = 'Vac';
+                    }
+                  }
                   }
                 }
                 bool isHoliday = provider.isHolidayToday(result.date);

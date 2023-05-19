@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
 import 'package:shift_schedule/methods/global_methods.dart';
 import 'package:shift_schedule/provider/employee_provider.dart';
 
@@ -9,8 +10,10 @@ class ScheduleDateWidget extends StatelessWidget {
   const ScheduleDateWidget({
     Key? key,
     required this.date,
+    required this.hasController,
   }) : super(key: key);
   final DateTime date;
+  final bool hasController;
   @override
   Widget build(BuildContext context) {
     bool isHoliday = context.read<EmployeesProvider>().isHolidayToday(date);
@@ -20,20 +23,33 @@ class ScheduleDateWidget extends StatelessWidget {
       width: 60,
       child: Column(
         children: <Widget>[
-          Text(
-            DateFormat.d().add_E().format(date),
-            style: GoogleFonts.lato(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[500],
+          Container(
+            padding: hasController ? const EdgeInsets.all(2) : EdgeInsets.zero,
+            decoration: BoxDecoration(
+              border: Border.all(
+                  color: hasController ? Colors.green : Colors.transparent,
+                  width: hasController ? 1.5 : 0.0),
+              borderRadius: BorderRadius.circular(hasController ? 4 : 0),
             ),
-          ),
-          Text(
-            DateFormat.MMMM().format(date),
-            style: GoogleFonts.lato(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey[400],
+            child: Column(
+              children: <Widget>[
+                Text(
+                  DateFormat.d().add_E().format(date),
+                  style: GoogleFonts.lato(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[500],
+                  ),
+                ),
+                Text(
+                  DateFormat.MMMM().format(date),
+                  style: GoogleFonts.lato(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[400],
+                  ),
+                ),
+              ],
             ),
           ),
           Row(
@@ -57,7 +73,7 @@ class ScheduleDateWidget extends StatelessWidget {
   ]) {
     return Container(
       width: 20,
-      margin: const EdgeInsets.only(top: 4,left: 2,right: 2),
+      margin: const EdgeInsets.only(top: 4, left: 2, right: 2),
       padding: const EdgeInsets.fromLTRB(2, 4, 2, 4),
       alignment: Alignment.center,
       decoration: BoxDecoration(

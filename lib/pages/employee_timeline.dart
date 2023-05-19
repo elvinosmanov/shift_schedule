@@ -64,13 +64,23 @@ class _EmployeeTimeLineState extends State<EmployeeTimeLine> {
               itemBuilder: (context, index) {
                 final dailyShift = provider.dailyShiftsList[index];
                 // bool isHoliday = provider.isHolidayToday(dailyShift.date);
-
-                return Padding(
+                bool hasSelectedController = false;
+                int i = dailyShift.dayShiftEmployee.indexWhere(
+                  (value) => value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
+                );
+                int j = dailyShift.nightShiftEmployee.indexWhere(
+                  (value) => value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
+                );
+                if (i + j >= -1) {
+                  hasSelectedController = true;
+                }
+                return Container(
                   padding: const EdgeInsets.only(bottom: 12.0, top: 12),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      ScheduleDateWidget(date: dailyShift.date),
+                      ScheduleDateWidget(
+                          date: dailyShift.date, hasController: hasSelectedController),
                       EmployeeScheduleCards(
                         isDayShift: true,
                         employees: dailyShift.dayShiftEmployee,
