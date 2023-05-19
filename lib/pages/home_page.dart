@@ -18,16 +18,70 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
-  @override
-  void initState() {
-    context.read<EmployeesProvider>().getAllEmployees();
-    context.read<EmployeesProvider>().getHolidays();
-    super.initState();
+class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
+  void openListModal() async {
+    final employees = context.read<EmployeesProvider>().employees;
+
+    final result = await showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) {
+        return SizedBox(
+          height: MediaQuery.of(context).size.height * .5,
+          child: Column(
+            children: [
+              Stack(
+                children: <Widget>[
+                  Align(
+                      alignment: Alignment.centerLeft,
+                      child: IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(Icons.arrow_back))),
+                  Container(
+                      height: 48,
+                      width: double.infinity,
+                      child: Center(
+                          child: Text(
+                        'Select Shift Controller',
+                        style: GoogleFonts.lato(fontSize: 22, fontWeight: FontWeight.bold),
+                      ))),
+                ],
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: employees.length,
+                  itemBuilder: (context, index) {
+                    return Card(
+                      elevation: 0.1,
+                      child: ListTile(
+                        title: Center(
+                            child:
+                                Text("${employees[index].firstName} ${employees[index].lastName}")),
+                        onTap: () {
+                          Navigator.pop(context, employees[index]);
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (result != null) {
+      context.read<EmployeesProvider>().selectedEmployee = result;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final provider = context.watch<EmployeesProvider>();
     return Scaffold(
       body: SafeArea(
@@ -45,27 +99,30 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                         DateFormat.yMMMMd().format(DateTime.now()),
                         style: subHeadingStyle,
                       ),
+                      const SizedBox(
+                        height: 4,
+                      ),
                       Text(
-                        'Today',
-                        style: headingStyle,
+                        'Controller: ${provider.selectedEmployee!.firstName} ${provider.selectedEmployee!.lastName[0]}.',
+                        style: GoogleFonts.lato(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
-                  ElevatedButton.icon(
-                      onPressed: () {
-                        provider.isCalendarView = !provider.isCalendarView;
-                        print(provider.isCalendarView);
-                      },
-                      icon: Icon(
-                        !provider.isCalendarView
-                            ? Icons.calendar_today
-                            : Icons.view_timeline_outlined,
-                        size: 16,
-                      ),
-                      label: Text(
-                        !provider.isCalendarView ? 'Calendar view' : "Timeline view",
-                        style: GoogleFonts.lato(fontSize: 12),
-                      )),
+                  Row(
+                    children: <Widget>[
+                      IconButton(
+                          onPressed: () {
+                            provider.isCalendarView = !provider.isCalendarView;
+                          },
+                          icon: Icon(provider.isCalendarView
+                              ? Icons.view_timeline_outlined
+                              : Icons.calendar_month_outlined)),
+                      IconButton(onPressed: openListModal, icon: const Icon(Icons.settings))
+                    ],
+                  )
                 ],
               ),
             ),
@@ -86,7 +143,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  Widget buildSchedule(EmployeesProvider provider) {
-    return const EmployeeTimeLine();
-  }
+
+  @override
+  bool get wantKeepAlive => true;
 }

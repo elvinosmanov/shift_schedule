@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:shift_schedule/methods/global_methods.dart';
-
 import '../provider/employee_provider.dart';
 import '../widgets/custom_date_picker.dart';
 import '../widgets/employee_schedule_card.dart';
 import '../widgets/schedule_date_widget.dart';
+
 class EmployeeTimeLine extends StatefulWidget {
-  
   const EmployeeTimeLine({
     super.key,
   });
@@ -19,6 +17,12 @@ class EmployeeTimeLine extends StatefulWidget {
 
 class _EmployeeTimeLineState extends State<EmployeeTimeLine> {
   final ScrollController _scrollController = ScrollController();
+  @override
+  void initState() {
+    context.read<EmployeesProvider>().calculateScrollOfsset();
+    // WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToIndex(DateTime.now(),context.read<EmployeesProvider>()));
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -43,26 +47,23 @@ class _EmployeeTimeLineState extends State<EmployeeTimeLine> {
 
   @override
   Widget build(BuildContext context) {
-
-    context.read<EmployeesProvider>().calculateScrollOfsset();
     final provider = context.watch<EmployeesProvider>();
-
     return Padding(
       padding: const EdgeInsets.only(left: 12.0, right: 12),
       child: Column(
         // crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          
           CustomDatePicker(
             onDateChange: (selectedDate) => _scrollToIndex(selectedDate, provider),
           ),
           Expanded(
             child: ListView.builder(
+              key: const PageStorageKey('myListView'),
               controller: _scrollController,
               itemCount: provider.dailyShiftsList.length,
               itemBuilder: (context, index) {
                 final dailyShift = provider.dailyShiftsList[index];
-                bool isHoliday = provider.isHolidayToday(dailyShift.date);
+                // bool isHoliday = provider.isHolidayToday(dailyShift.date);
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12.0, top: 12),

@@ -43,6 +43,9 @@ class EmployeesProvider extends ChangeNotifier {
 
   set selectedEmployee(Employee? value) {
     _selectedEmployee = value;
+    if(value!=null) {
+      DatabaseHelper.saveSelectedEmployee(value);
+    }
     notifyListeners();
   }
 
@@ -50,7 +53,9 @@ class EmployeesProvider extends ChangeNotifier {
 
   void getHolidays() async {
     List<Holidays> result = await DatabaseHelper.getHolidays();
-    if (holidays.isEmpty) {
+    bool internetResult = await InternetConnectionChecker().hasConnection;
+
+    if (result.isEmpty && internetResult) {
       result = await ScheduleSheetsApi.fetchHolidays();
       DatabaseHelper.saveHolidays(result);
     }
@@ -72,9 +77,18 @@ class EmployeesProvider extends ChangeNotifier {
       DatabaseHelper.saveEmployeeList(employees);
     }
     if (employees.isNotEmpty) {
-      selectedEmployee = employees[15];
-      print(selectedEmployee);
+      await getSelectedEmployee();
+
       await calculateShift();
+    }
+  }
+
+  Future<void> getSelectedEmployee() async {
+    final result = await DatabaseHelper.getSelectedEmployee();
+    if (result != null) {
+      selectedEmployee = result;
+    } else {
+      selectedEmployee = employees[4];
     }
   }
 
@@ -136,4 +150,23 @@ class EmployeesProvider extends ChangeNotifier {
     }
     return false;
   }
+
+  // DateTime determineNextWorkingDay(DateTime now) {
+  //   DateTime nextWorkingDay = now;
+
+  //   // Loop until you find the next working day
+  //   while (!isWorkingDay(nextWorkingDay)) {
+  //     print('girdi');
+  //     nextWorkingDay = nextWorkingDay.add(const Duration(days: 1));
+  //   }
+
+  //   return nextWorkingDay;
+  // }
+
+  // bool isWorkingDay(DateTime date) {
+  //   final list =
+  //       dailyShiftsList.where((element) => GlobalMethods.isSameDate(date, element.date)).toList();
+  //   if (list == null) return false;
+  //   return  list.first.dayShiftEmployee.isEmpty;
+  // }
 }

@@ -10,20 +10,22 @@ class LoadingEmployee extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          LoadingAnimationWidget.flickr(
-            leftDotColor: kSunColorPri,
-            rightDotColor: kNightColorPri,
-            size: 60.0,
-          ),
-          Text(
-            'Loading schedule...',
-            style: smallTextStyle,
-          ),
-        ],
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            LoadingAnimationWidget.flickr(
+              leftDotColor: kSunColorPri,
+              rightDotColor: kNightColorPri,
+              size: 60.0,
+            ),
+            Text(
+              'Loading schedule...',
+              style: smallTextStyle,
+            ),
+          ],
+        ),
       ),
     );
   }

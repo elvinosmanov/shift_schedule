@@ -18,6 +18,9 @@ class MyCalendarSchedule extends StatefulWidget {
 class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
   @override
   Widget build(BuildContext context) {
+    // final da = context.read<EmployeesProvider>().determineNextWorkingDay(DateTime.now());
+    // print(da);
+
     final provider = context.read<EmployeesProvider>();
     final startWeekday = provider.dailyShiftsList[0].date.weekday - 1; //start from zero
     return Padding(
@@ -32,8 +35,8 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
               _buildDayName("WED"),
               _buildDayName("THU"),
               _buildDayName("FRI"),
-              _buildDayName("SAT"),
-              _buildDayName("SUN"),
+              _buildDayName("SAT", Colors.red),
+              _buildDayName("SUN", Colors.red),
             ],
           ),
           const SizedBox(height: 4),
@@ -55,14 +58,14 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                 Color color = Colors.grey[100]!;
                 String shiftStatus = 'Off';
                 int index = result.dayShiftEmployee.indexWhere(
-                  (value) => value!.id == provider.selectedEmployee!.id,
+                  (value) => value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
                 );
                 if (index >= 0) {
                   color = kSunColorPri;
                   shiftStatus = 'Day';
                 } else {
                   int index = result.nightShiftEmployee.indexWhere(
-                    (value) => value!.id == provider.selectedEmployee!.id,
+                    (value) => value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
                   );
                   if (index >= 0) {
                     color = kNightColorPri;
@@ -90,15 +93,31 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                           alignment: Alignment.topLeft,
                           child: Padding(
                             padding: const EdgeInsets.only(left: 4.0, top: 4),
-                            child: Text(DateFormat.d().format(result.date),
-                                style: GoogleFonts.lato(
-                                  textStyle: TextStyle(
-                                    fontSize: 20,
-                                    height: 0.99,
-                                    fontWeight: FontWeight.bold,
-                                    color: shiftStatus == 'Night' ? Colors.white : Colors.black87,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(DateFormat.d().format(result.date),
+                                    style: GoogleFonts.lato(
+                                      textStyle: TextStyle(
+                                        fontSize: 20,
+                                        height: 0.99,
+                                        fontWeight: FontWeight.bold,
+                                        color:
+                                            shiftStatus == 'Night' ? Colors.white : Colors.black87,
+                                      ),
+                                    )),
+                                Text(
+                                  DateFormat.MMM().format(result.date),
+                                  style: GoogleFonts.lato(
+                                    textStyle: TextStyle(
+                                      fontSize: 8,
+                                      fontWeight: FontWeight.bold,
+                                      color: shiftStatus == 'Night' ? Colors.white : Colors.black87,
+                                    ),
                                   ),
-                                )),
+                                )
+                              ],
+                            ),
                           )),
                       Align(
                           alignment: Alignment.bottomCenter,
@@ -123,7 +142,7 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
     );
   }
 
-  Expanded _buildDayName(String text) {
+  Expanded _buildDayName(String text, [Color? textColor]) {
     return Expanded(
       child: Container(
         alignment: Alignment.center,
@@ -136,6 +155,7 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
         child: Text(
           text,
           style: GoogleFonts.lato(
+            color: textColor,
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
