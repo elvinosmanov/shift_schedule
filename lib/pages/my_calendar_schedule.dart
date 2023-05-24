@@ -18,7 +18,6 @@ class MyCalendarSchedule extends StatefulWidget {
 }
 
 class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
-  List<Map<ShiftStatus, int>> shiftCount = [];
   @override
   Widget build(BuildContext context) {
     final provider = context.read<EmployeesProvider>();
@@ -76,8 +75,7 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                   if (index >= 0) {
                     color = kNightColorPri;
                     shiftStatus = 'Night';
-                  shift = ShiftStatus.night;
-
+                    shift = ShiftStatus.night;
                   } else {
                     int index = result.regularShiftEmployee.indexWhere(
                       (value) =>
@@ -86,8 +84,7 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                     if (index >= 0) {
                       color = Colors.green[200]!;
                       shiftStatus = 'Reg';
-                  shift = ShiftStatus.regular;
-
+                      shift = ShiftStatus.regular;
                     } else {
                       int index = result.vacationShiftEmployee.indexWhere(
                         (value) =>
@@ -96,13 +93,67 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                       if (index >= 0) {
                         color = kNightColorSL;
                         shiftStatus = 'Vac';
-                  shift = ShiftStatus.vacation;
-
+                        shift = ShiftStatus.vacation;
+                      } else {
+                        int index = result.regularShortShiftEmployee.indexWhere(
+                          (value) =>
+                              value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
+                        );
+                        if (index >= 0) {
+                          color = kNightColorSL.withOpacity(0.6);
+                          shiftStatus = 'RegShort';
+                          shift = ShiftStatus.regularShort;
+                        } else {
+                          int index = result.nightInShiftEmployee.indexWhere(
+                            (value) =>
+                                value!.id ==
+                                context.watch<EmployeesProvider>().selectedEmployee!.id,
+                          );
+                          if (index >= 0) {
+                            color = kNightColorSL.withOpacity(0.5);
+                            shiftStatus = 'Ngt\nIn';
+                            shift = ShiftStatus.nightIn;
+                          } else {
+                            int index = result.nightOutShiftEmployee.indexWhere(
+                              (value) =>
+                                  value!.id ==
+                                  context.watch<EmployeesProvider>().selectedEmployee!.id,
+                            );
+                            if (index >= 0) {
+                              color = kNightColorSL.withOpacity(0.5);
+                              shiftStatus = 'Ngt\nOut';
+                              shift = ShiftStatus.nightOut;
+                            }
+                          }
+                        }
                       }
                     }
                   }
                 }
+                if (isHoliday) {
+                  if (shift == ShiftStatus.day || shift == ShiftStatus.night) {
+                    shift = ShiftStatus.holidayDay;
+                  } else if (shift == ShiftStatus.nightIn) {
+                    shift = ShiftStatus.holidayIn;
+                  } else if (shift == ShiftStatus.nightOut) {
+                    shift = ShiftStatus.holidayOut;
+                  }
+                }
+                if (provider.beginningOfMonth.month == result.date.month) {
+                  provider.shiftCount[0].update(
+                    shift.toString(),
+                    (value) => value + 1,
+                    ifAbsent: () => 1,
+                  );
+                }else{
+                  provider.shiftCount[1].update(
+                    shift.toString(),
+                    (value) => value + 1,
+                    ifAbsent: () => 1,
+                  );
+                }
 
+                print(provider.shiftCount[0]);
                 return Container(
                   decoration: BoxDecoration(
                       color: color,
@@ -138,6 +189,7 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
           padding: const EdgeInsets.only(bottom: 8.0),
           child: Text(
             shiftStatus,
+            textAlign: TextAlign.center,
             style: GoogleFonts.lato(color: textColor, fontWeight: FontWeight.bold, fontSize: 15),
           ),
         ));

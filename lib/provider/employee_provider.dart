@@ -50,6 +50,9 @@ class EmployeesProvider extends ChangeNotifier {
 
   List<Employee> get employees => _employees;
 
+  List<Map<String, int>> shiftCount = [{},{}];
+
+
   set employees(List<Employee> value) {
     _employees = value;
     notifyListeners();
@@ -113,7 +116,6 @@ class EmployeesProvider extends ChangeNotifier {
   }
 
   void getAllEmployees() async {
-    ScheduleSheetsApi.fetchMonthlyHours();
     bool internetResult = await InternetConnectionChecker().hasConnection;
     final result = await DatabaseHelper.getEmployeeList();
 
@@ -172,7 +174,13 @@ class EmployeesProvider extends ChangeNotifier {
           dailyShifts.dayShiftEmployee.add(employee);
         } else if (shiftStatus == ShiftStatus.night) {
           dailyShifts.nightShiftEmployee.add(employee);
-        } else if (shiftStatus == ShiftStatus.regular || shiftStatus == ShiftStatus.regularShort) {
+        } else if (shiftStatus == ShiftStatus.nightIn) {
+          dailyShifts.nightInShiftEmployee.add(employee);
+        } else if (shiftStatus == ShiftStatus.nightOut) {
+          dailyShifts.nightOutShiftEmployee.add(employee);
+        } else if (shiftStatus == ShiftStatus.regular) {
+          dailyShifts.regularShiftEmployee.add(employee);
+        } else if (shiftStatus == ShiftStatus.regularShort) {
           dailyShifts.regularShiftEmployee.add(employee);
         } else if (shiftStatus == ShiftStatus.vacation) {
           dailyShifts.vacationShiftEmployee.add(employee);

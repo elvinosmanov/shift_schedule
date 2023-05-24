@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shift_schedule/enums/positions.dart';
 import 'package:shift_schedule/pages/my_calendar_schedule.dart';
 
 import '../provider/employee_provider.dart';
@@ -20,7 +21,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
- 
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -57,11 +57,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                     children: <Widget>[
                       if (provider.hasUpdate)
                         IconButton(
-                            onPressed: 
-                            
-                            provider.uploadLoading
-                                ? null
-                                : provider.updateDatabase,
+                            onPressed: provider.uploadLoading ? null : provider.updateDatabase,
                             icon: provider.uploadLoading
                                 ? const SizedBox(
                                     width: 20,
@@ -83,7 +79,9 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                               ? Icons.view_timeline_outlined
                               : Icons.calendar_month_outlined)),
                       IconButton(onPressed: openListModal, icon: const Icon(Icons.settings)),
-                      IconButton(onPressed: openSalaryCalculationModal, icon: const Icon(Icons.attach_money_outlined))
+                      IconButton(
+                          onPressed: openSalaryCalculationModal,
+                          icon: const Icon(Icons.attach_money_outlined))
                     ],
                   )
                 ],
@@ -109,34 +107,47 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
   @override
   bool get wantKeepAlive => true;
   void openListModal() async {
-  final employees = context.read<EmployeesProvider>().employees;
+    context.read<EmployeesProvider>().shiftCount = [{}, {}];
+    final employees = context.read<EmployeesProvider>().employees;
 
-  final result = await showModalBottomSheet(
-    context: context,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-    builder: (context) {
-      return EmployeeListModal(employees: employees);
-    },
-  );
+    final result = await showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) {
+        return EmployeeListModal(employees: employees);
+      },
+    );
 
-  if (result != null) {
-    context.read<EmployeesProvider>().selectedEmployee = result;
+    if (result != null) {
+      context.read<EmployeesProvider>().selectedEmployee = result;
+    }
   }
-}
 
-void openSalaryCalculationModal() async {
-  final monthlyHours = context.read<EmployeesProvider>().monthlyHours;
-  
-
-  await showModalBottomSheet(
-    context: context,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-    builder: (context) {
-      return const Text('Montly Salary Calculation');
-    },
-  );
-
-}
+  void openSalaryCalculationModal() async {
+    final monthlyHours = context.read<EmployeesProvider>().monthlyHours;
+    final provider = context.read<EmployeesProvider>();
+    await showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) {
+        return Container(
+          height: 48,
+          width: double.infinity,
+          child: Center(
+            child: Column(
+              children: [
+                Text(
+                  'Monthly Salary Calculation',
+                  style: GoogleFonts.lato(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                Text('Day: ${provider.shiftCount[0][ShiftStatus.day.toString()]}')
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
