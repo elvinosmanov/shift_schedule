@@ -50,7 +50,7 @@ class EmployeesProvider extends ChangeNotifier {
 
   List<Employee> get employees => _employees;
 
-  List<Map<String, int>> shiftCount = [{},{}];
+  List<Map<String, int>> shiftCount = [];
 
 
   set employees(List<Employee> value) {

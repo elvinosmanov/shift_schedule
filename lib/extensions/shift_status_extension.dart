@@ -25,7 +25,7 @@ extension StringShiftStatusExtension on String {
     if (this == "R") return ShiftStatus.regular;
     if (this == "RS" || this == 'SR') return ShiftStatus.regularShort;
     if (this == "v") return ShiftStatus.vacation;
-    
+
     return ShiftStatus.off;
   }
 
@@ -58,6 +58,35 @@ extension PositionEnumExtension on ShiftPosition {
         return isDayShift ? kSunColorTR : kNightColorTR;
       default:
         return isDayShift ? kSunColorTR : kNightColorTR; // Handle any other cases if needed
+    }
+  }
+}
+
+extension ShiftStatusExtension on ShiftStatus {
+  String toStr() {
+    switch (this) {
+      case ShiftStatus.day:
+        return 'Day Shift';
+      case ShiftStatus.night:
+        return 'Night Shift';
+      case ShiftStatus.nightIn:
+        return 'Night In Shift';
+      case ShiftStatus.nightOut:
+        return 'Night Out Shift';
+      case ShiftStatus.regular:
+        return 'Regular Shift';
+      case ShiftStatus.regularShort:
+        return 'Short Regular Shift';
+      case ShiftStatus.holidayDay:
+        return 'Holiday';
+      case ShiftStatus.holidayIn:
+        return 'Holiday In';
+      case ShiftStatus.holidayOut:
+        return 'Holiday Out';
+      case ShiftStatus.vacation:
+        return 'Vacation';
+      case ShiftStatus.off:
+        return 'Off Day';
     }
   }
 }

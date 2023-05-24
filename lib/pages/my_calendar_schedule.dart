@@ -111,7 +111,7 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                           );
                           if (index >= 0) {
                             color = kNightColorSL.withOpacity(0.5);
-                            shiftStatus = 'Ngt\nIn';
+                            shiftStatus = 'In';
                             shift = ShiftStatus.nightIn;
                           } else {
                             int index = result.nightOutShiftEmployee.indexWhere(
@@ -121,7 +121,7 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                             );
                             if (index >= 0) {
                               color = kNightColorSL.withOpacity(0.5);
-                              shiftStatus = 'Ngt\nOut';
+                              shiftStatus = 'Out';
                               shift = ShiftStatus.nightOut;
                             }
                           }
@@ -140,20 +140,20 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                   }
                 }
                 if (provider.beginningOfMonth.month == result.date.month) {
+                  provider.shiftCount.add({});
                   provider.shiftCount[0].update(
                     shift.toString(),
                     (value) => value + 1,
                     ifAbsent: () => 1,
                   );
-                }else{
+                } else {
+                  provider.shiftCount.add({});
                   provider.shiftCount[1].update(
                     shift.toString(),
                     (value) => value + 1,
                     ifAbsent: () => 1,
                   );
                 }
-
-                print(provider.shiftCount[0]);
                 return Container(
                   decoration: BoxDecoration(
                       color: color,
