@@ -91,4 +91,20 @@ class DatabaseHelper {
     }
     return null;
   }
+
+  static void saveMonthlyHours(List<int?> intList) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> stringList = intList.map((value) => value.toString()).toList();
+    await prefs.setStringList('monthlyHours', stringList);
+  }
+
+  static Future<List<int>> getMonthlyHours() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? stringList = prefs.getStringList('monthlyHours');
+    if (stringList != null) {
+      List<int> intList = stringList.map((str) => int.parse(str)).toList();
+      return intList;
+    }
+    return [];
+  }
 }

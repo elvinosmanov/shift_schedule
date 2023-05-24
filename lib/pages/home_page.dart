@@ -6,6 +6,7 @@ import 'package:shift_schedule/pages/my_calendar_schedule.dart';
 
 import '../provider/employee_provider.dart';
 import '../ui/themes.dart';
+import '../widgets/employee_list_modal.dart';
 import '../widgets/loading_employee.dart';
 import 'employee_timeline.dart';
 
@@ -19,66 +20,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
-  void openListModal() async {
-    final employees = context.read<EmployeesProvider>().employees;
-
-    final result = await showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) {
-        return SizedBox(
-          height: MediaQuery.of(context).size.height * .5,
-          child: Column(
-            children: [
-              Stack(
-                children: <Widget>[
-                  Align(
-                      alignment: Alignment.centerLeft,
-                      child: IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          icon: const Icon(Icons.arrow_back))),
-                  Container(
-                      height: 48,
-                      width: double.infinity,
-                      child: Center(
-                          child: Text(
-                        'Select Shift Controller',
-                        style: GoogleFonts.lato(fontSize: 22, fontWeight: FontWeight.bold),
-                      ))),
-                ],
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: employees.length,
-                  itemBuilder: (context, index) {
-                    return Card(
-                      elevation: 0.1,
-                      child: ListTile(
-                        title: Center(
-                            child:
-                                Text("${employees[index].firstName} ${employees[index].lastName}")),
-                        onTap: () {
-                          Navigator.pop(context, employees[index]);
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-
-    if (result != null) {
-      context.read<EmployeesProvider>().selectedEmployee = result;
-    }
-  }
-
+ 
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -113,6 +55,26 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                   ),
                   Row(
                     children: <Widget>[
+                      if (provider.hasUpdate)
+                        IconButton(
+                            onPressed: 
+                            
+                            provider.uploadLoading
+                                ? null
+                                : provider.updateDatabase,
+                            icon: provider.uploadLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 1,
+                                      color: kNightColorPri,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.cloud_upload,
+                                    color: Colors.red,
+                                  )),
                       IconButton(
                           onPressed: () {
                             provider.isCalendarView = !provider.isCalendarView;
@@ -120,7 +82,8 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                           icon: Icon(provider.isCalendarView
                               ? Icons.view_timeline_outlined
                               : Icons.calendar_month_outlined)),
-                      IconButton(onPressed: openListModal, icon: const Icon(Icons.settings))
+                      IconButton(onPressed: openListModal, icon: const Icon(Icons.settings)),
+                      IconButton(onPressed: openSalaryCalculationModal, icon: const Icon(Icons.attach_money_outlined))
                     ],
                   )
                 ],
@@ -143,7 +106,37 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     );
   }
 
-
   @override
   bool get wantKeepAlive => true;
+  void openListModal() async {
+  final employees = context.read<EmployeesProvider>().employees;
+
+  final result = await showModalBottomSheet(
+    context: context,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+    builder: (context) {
+      return EmployeeListModal(employees: employees);
+    },
+  );
+
+  if (result != null) {
+    context.read<EmployeesProvider>().selectedEmployee = result;
+  }
+}
+
+void openSalaryCalculationModal() async {
+  final monthlyHours = context.read<EmployeesProvider>().monthlyHours;
+  
+
+  await showModalBottomSheet(
+    context: context,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+    builder: (context) {
+      return const Text('Montly Salary Calculation');
+    },
+  );
+
+}
 }

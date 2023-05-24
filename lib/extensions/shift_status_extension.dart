@@ -18,7 +18,6 @@ extension StringShiftStatusExtension on String {
   }
 
   ShiftStatus get statusToEnum {
-    print(this);
     if (this == "D") return ShiftStatus.day;
     if (this == "N" || this == "_N") return ShiftStatus.night;
     // if (this == "N_") return ShiftStatus.nightOut;

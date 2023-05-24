@@ -60,12 +60,25 @@ class ScheduleSheetsApi {
 
     try {
       List<Holidays> holidays=[];
-      var values = await scheduleSheet.values.allRows();
+      var values = await scheduleSheet.values.allRows(length: 2);
       for (var value in values) {
         holidays.add(Holidays.fromList(value));
       }
 
       return holidays;
+    } catch (e) {
+      debugPrint(e.toString());
+      return [];
+    }
+  }
+  static Future<List<int>> fetchMonthlyHours() async {
+    final spreadsheet = await _gsheets.spreadsheet(_spreadsheetId);
+    final scheduleSheet = _getWorkSheet(spreadsheet, title: 'monthlyHours');
+
+    try {
+      var result = await scheduleSheet.values.column(2);
+      List<int> monthlyHours = result.map((str) => int.parse(str)).toList();
+      return monthlyHours;
     } catch (e) {
       debugPrint(e.toString());
       return [];

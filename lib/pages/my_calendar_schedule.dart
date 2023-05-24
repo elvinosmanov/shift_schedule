@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shift_schedule/enums/positions.dart';
 
 import 'package:shift_schedule/methods/global_methods.dart';
+import 'package:shift_schedule/models/shift_model.dart';
 import 'package:shift_schedule/ui/themes.dart';
 
 import '../provider/employee_provider.dart';
@@ -16,11 +18,9 @@ class MyCalendarSchedule extends StatefulWidget {
 }
 
 class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
+  List<Map<ShiftStatus, int>> shiftCount = [];
   @override
   Widget build(BuildContext context) {
-    // final da = context.read<EmployeesProvider>().determineNextWorkingDay(DateTime.now());
-    // print(da);
-
     final provider = context.read<EmployeesProvider>();
     final startWeekday = provider.dailyShiftsList[0].date.weekday - 1; //start from zero
     return Padding(
@@ -54,15 +54,21 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                   return Container();
                 }
                 final result = provider.dailyShiftsList[gridIndex - startWeekday];
+                bool isHoliday = provider.isHolidayToday(result.date);
                 final isToday = GlobalMethods.isSameDate(DateTime.now(), result.date);
                 Color color = Colors.grey[100]!;
                 String shiftStatus = 'Off';
+                var shift = ShiftStatus.off;
+
+                final Color textColor = shiftStatus == 'Night' ? Colors.white : Colors.black;
+
                 int index = result.dayShiftEmployee.indexWhere(
                   (value) => value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
                 );
                 if (index >= 0) {
                   color = kSunColorPri;
                   shiftStatus = 'Day';
+                  shift = ShiftStatus.day;
                 } else {
                   int index = result.nightShiftEmployee.indexWhere(
                     (value) => value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
@@ -70,6 +76,8 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                   if (index >= 0) {
                     color = kNightColorPri;
                     shiftStatus = 'Night';
+                  shift = ShiftStatus.night;
+
                   } else {
                     int index = result.regularShiftEmployee.indexWhere(
                       (value) =>
@@ -77,20 +85,23 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                     );
                     if (index >= 0) {
                       color = Colors.green[200]!;
-                      shiftStatus = 'Regular';
-                    }else {
-                    int index = result.vacationShiftEmployee.indexWhere(
-                      (value) =>
-                          value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
-                    );
-                    if (index >= 0) {
-                      color = kNightColorSL;
-                      shiftStatus = 'Vac';
+                      shiftStatus = 'Reg';
+                  shift = ShiftStatus.regular;
+
+                    } else {
+                      int index = result.vacationShiftEmployee.indexWhere(
+                        (value) =>
+                            value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
+                      );
+                      if (index >= 0) {
+                        color = kNightColorSL;
+                        shiftStatus = 'Vac';
+                  shift = ShiftStatus.vacation;
+
+                      }
                     }
                   }
-                  }
                 }
-                bool isHoliday = provider.isHolidayToday(result.date);
 
                 return Container(
                   decoration: BoxDecoration(
@@ -107,48 +118,8 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                             child: CalendarIconWidget(
                           iconData: Icons.today,
                         )),
-                      Align(
-                          alignment: Alignment.topLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 4.0, top: 4),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(DateFormat.d().format(result.date),
-                                    style: GoogleFonts.lato(
-                                      textStyle: TextStyle(
-                                        fontSize: 20,
-                                        height: 0.99,
-                                        fontWeight: FontWeight.bold,
-                                        color:
-                                            shiftStatus == 'Night' ? Colors.white : Colors.black87,
-                                      ),
-                                    )),
-                                Text(
-                                  DateFormat.MMM().format(result.date),
-                                  style: GoogleFonts.lato(
-                                    textStyle: TextStyle(
-                                      fontSize: 8,
-                                      fontWeight: FontWeight.bold,
-                                      color: shiftStatus == 'Night' ? Colors.white : Colors.black87,
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          )),
-                      Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
-                            child: Text(
-                              shiftStatus,
-                              style: GoogleFonts.lato(
-                                  color: shiftStatus == 'Night' ? Colors.white : Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15),
-                            ),
-                          ))
+                      _buildDateWidget(result, textColor),
+                      _buildShiftStatusText(shiftStatus, textColor)
                     ],
                   ),
                 );
@@ -160,15 +131,57 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
     );
   }
 
+  Align _buildShiftStatusText(String shiftStatus, Color textColor) {
+    return Align(
+        alignment: Alignment.bottomCenter,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Text(
+            shiftStatus,
+            style: GoogleFonts.lato(color: textColor, fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+        ));
+  }
+
+  Align _buildDateWidget(DailyShifts result, Color textColor) {
+    return Align(
+        alignment: Alignment.topLeft,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 4.0, top: 4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(DateFormat.d().format(result.date),
+                  style: GoogleFonts.lato(
+                    textStyle: TextStyle(
+                      fontSize: 20,
+                      height: 0.99,
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                    ),
+                  )),
+              Text(
+                DateFormat.MMM().format(result.date),
+                style: GoogleFonts.lato(
+                  textStyle: TextStyle(
+                    fontSize: 8,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+              )
+            ],
+          ),
+        ));
+  }
+
   Expanded _buildDayName(String text, [Color? textColor]) {
     return Expanded(
       child: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.only(top: 4, bottom: 4),
-        // margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
         decoration: const BoxDecoration(
           color: kSunColorTR,
-          // borderRadius: BorderRadius.circular(2),
         ),
         child: Text(
           text,
@@ -194,7 +207,10 @@ class CalendarIconWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(2.5),
       decoration: BoxDecoration(
-          border: Border.all(width: 0.5), shape: BoxShape.circle, color: Colors.white),
+        border: Border.all(width: 0.5),
+        shape: BoxShape.circle,
+        color: Colors.white,
+      ),
       child: Icon(
         iconData,
         color: Colors.red,

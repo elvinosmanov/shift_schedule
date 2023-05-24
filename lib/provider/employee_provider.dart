@@ -14,6 +14,24 @@ import '../methods/global_methods.dart';
 import '../models/shift_model.dart';
 
 class EmployeesProvider extends ChangeNotifier {
+  bool _uploadLoading = false;
+
+  bool get uploadLoading => _uploadLoading;
+
+  set uploadLoading(bool value) {
+    _uploadLoading = value;
+    notifyListeners();
+  }
+
+  bool _hasUpdate = false;
+
+  bool get hasUpdate => _hasUpdate;
+
+  set hasUpdate(bool value) {
+    _hasUpdate = value;
+    notifyListeners();
+  }
+
   bool _isCalendarView = false;
 
   bool get isCalendarView => _isCalendarView;
@@ -50,37 +68,71 @@ class EmployeesProvider extends ChangeNotifier {
   }
 
   List<Holidays?> holidays = [];
+  List<int?> monthlyHours = [];
+
+  void init() {
+    getAllEmployees();
+    getHolidays();
+    getMonthlyHours();
+    checkUpdateStatus();
+  }
 
   void getHolidays() async {
     List<Holidays> result = await DatabaseHelper.getHolidays();
+    if (result.isEmpty) {
+      await fetchHolidays();
+    } else {
+      holidays = result;
+    }
+  }
+
+  void getMonthlyHours() async {
+    var result = await DatabaseHelper.getMonthlyHours();
+    if (result.isEmpty) {
+      await fetchMonthlyHours();
+    } else {
+      monthlyHours = result;
+    }
+  }
+
+  Future<void> fetchMonthlyHours() async {
+    bool internetResult = await InternetConnectionChecker().hasConnection;
+    if (internetResult) {
+      monthlyHours = await ScheduleSheetsApi.fetchMonthlyHours();
+      DatabaseHelper.saveMonthlyHours(monthlyHours);
+    }
+  }
+
+  Future<void> fetchHolidays() async {
     bool internetResult = await InternetConnectionChecker().hasConnection;
 
-    if (result.isEmpty && internetResult) {
-      result = await ScheduleSheetsApi.fetchHolidays();
-      DatabaseHelper.saveHolidays(result);
+    if (internetResult) {
+      holidays = await ScheduleSheetsApi.fetchHolidays();
+      DatabaseHelper.saveHolidays(holidays);
     }
-    holidays = result;
   }
 
   void getAllEmployees() async {
-    bool hasUpdate = false;
+    ScheduleSheetsApi.fetchMonthlyHours();
     bool internetResult = await InternetConnectionChecker().hasConnection;
-
-    if (internetResult == true) hasUpdate = await _checkUpdateStatus();
-
     final result = await DatabaseHelper.getEmployeeList();
 
-    if (result.isNotEmpty && !hasUpdate) {
+    if (result.isNotEmpty) {
       employees = result;
     } else {
-      employees = await ScheduleSheetsApi.fetchAllEmployees();
-      DatabaseHelper.saveEmployeeList(employees);
+      if (internetResult) {
+        fetchEmployees();
+      }
     }
     if (employees.isNotEmpty) {
       await getSelectedEmployee();
-
       await calculateShift();
     }
+  }
+
+  Future<void> fetchEmployees() async {
+    employees = await ScheduleSheetsApi.fetchAllEmployees();
+    DatabaseHelper.saveEmployeeList(employees);
   }
 
   Future<void> getSelectedEmployee() async {
@@ -88,23 +140,26 @@ class EmployeesProvider extends ChangeNotifier {
     if (result != null) {
       selectedEmployee = result;
     } else {
-      selectedEmployee = employees[4];
+      selectedEmployee = employees[0];
     }
   }
 
-  Future<bool> _checkUpdateStatus() async {
+  checkUpdateStatus() async {
+    bool internetResult = await InternetConnectionChecker().hasConnection;
+    if (!internetResult) return;
     final savedDate = await DatabaseHelper.getDate();
     final date = await ScheduleSheetsApi.fetchUpdatedDate();
-    await ScheduleSheetsApi.fetchHolidays();
     if (date != savedDate) {
+      // fetchEmployees();
+      // calculateShift();
       DatabaseHelper.saveDate(date);
-      return true;
-    } else {
-      return false;
+      // await ScheduleSheetsApi.fetchHolidays();
+      hasUpdate = true;
     }
   }
 
   calculateShift() {
+    dailyShiftsList = [];
     DateTime today = DateTime.now();
 
     int beginningDayOfYear = beginningOfMonth.difference(DateTime(today.year, 1, 1)).inDays;
@@ -117,7 +172,7 @@ class EmployeesProvider extends ChangeNotifier {
           dailyShifts.dayShiftEmployee.add(employee);
         } else if (shiftStatus == ShiftStatus.night) {
           dailyShifts.nightShiftEmployee.add(employee);
-        } else if (shiftStatus == ShiftStatus.regular) {
+        } else if (shiftStatus == ShiftStatus.regular || shiftStatus == ShiftStatus.regularShort) {
           dailyShifts.regularShiftEmployee.add(employee);
         } else if (shiftStatus == ShiftStatus.vacation) {
           dailyShifts.vacationShiftEmployee.add(employee);
@@ -153,22 +208,13 @@ class EmployeesProvider extends ChangeNotifier {
     return false;
   }
 
-  // DateTime determineNextWorkingDay(DateTime now) {
-  //   DateTime nextWorkingDay = now;
-
-  //   // Loop until you find the next working day
-  //   while (!isWorkingDay(nextWorkingDay)) {
-  //     print('girdi');
-  //     nextWorkingDay = nextWorkingDay.add(const Duration(days: 1));
-  //   }
-
-  //   return nextWorkingDay;
-  // }
-
-  // bool isWorkingDay(DateTime date) {
-  //   final list =
-  //       dailyShiftsList.where((element) => GlobalMethods.isSameDate(date, element.date)).toList();
-  //   if (list == null) return false;
-  //   return  list.first.dayShiftEmployee.isEmpty;
-  // }
+  updateDatabase() async {
+    uploadLoading = true;
+    fetchHolidays();
+    fetchMonthlyHours();
+    await fetchEmployees();
+    calculateShift();
+    uploadLoading = false;
+    hasUpdate = false;
+  }
 }
