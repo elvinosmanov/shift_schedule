@@ -22,6 +22,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
+  final controller = TextEditingController();
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -48,7 +55,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                       Text(
                         'Controller: ${provider.selectedEmployee!.firstName} ${provider.selectedEmployee!.lastName[0]}.',
                         style: GoogleFonts.lato(
-                          fontSize: 22,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -108,7 +115,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
   @override
   bool get wantKeepAlive => true;
   void openListModal() async {
-    context.read<EmployeesProvider>().shiftCount = [{}, {}];
     final employees = context.read<EmployeesProvider>().employees;
 
     final result = await showModalBottomSheet(
@@ -121,13 +127,15 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     );
 
     if (result != null) {
+      context.read<EmployeesProvider>().shiftCount = [{}, {}];
+
       context.read<EmployeesProvider>().selectedEmployee = result;
     }
   }
 
   void openSalaryCalculationModal() async {
     final provider = context.read<EmployeesProvider>();
-    print(provider.shiftCount.length);
+    print('lengthL ${provider.shiftCount.length}');
     await showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -136,17 +144,33 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
         return Center(
           child: Column(
             children: [
-              const SizedBox(height: 12),
+              const SizedBox(height: 6),
               Text(
                 'Monthly Salary Calculation',
-                style: GoogleFonts.lato(fontSize: 22, fontWeight: FontWeight.bold),
+                style: GoogleFonts.lato(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 6),
+              Container(
+                padding: const EdgeInsets.only(left: 32, right: 32),
+                child: TextField(
+                  controller: controller,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  maxLines: 1,
+                  
+                  decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Enter your gross',
+                      isCollapsed: true,
+                      contentPadding: EdgeInsets.symmetric(vertical: 6, horizontal: 8)),
+                ),
+              ),
+              const SizedBox(height: 8),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildShiftCountList(0),
-                  if (provider.shiftCount.length > 31) _buildShiftCountList(1),
+                  if (provider.shiftCount.length >= 2) _buildShiftCountList(1),
                 ],
               ),
             ],
@@ -156,86 +180,73 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     );
   }
 
-  Column _buildShiftCountList(int index) {
+  Widget _buildShiftCountList(int index) {
     final DateTime month = context.read<EmployeesProvider>().beginningOfMonth;
     final monthInt = month.month;
-    final monthlyHours = context.read<EmployeesProvider>().monthlyHours;
+    final monthlyHour =
+        context.read<EmployeesProvider>().monthlyHours[index == 0 ? monthInt - 1 : monthInt];
     final int totalHour = calculateTotalHour(index: index);
     final double calHour = calculatedHour(index: index);
-    final finalMoney = 1100 * calHour / totalHour;
+    print(totalHour);
+    print(calHour);
+    double finalMoney =
+        controller.text.isEmpty ? 0 : double.parse(controller.text) * calHour / (monthlyHour ?? 1);
     final calTax = calculateTax(finalMoney, 0, 200);
     final amountHeld =
         finalMoney * 0.03 + finalMoney * 0.01 + finalMoney * 0.02 + finalMoney * 0.005 + calTax;
     final netSalary = finalMoney - amountHeld;
     return Column(
       children: [
-        Text(DateFormat.MMMM().format(index == 0 ? month : month.add(const Duration(days: 31))),
-            textAlign: TextAlign.center,
-            style: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.bold)),
+        RichText(
+          textAlign: TextAlign.center,
+          text: TextSpan(
+            text:
+                DateFormat.MMMM().format(index == 0 ? month : month.add(const Duration(days: 31))),
+            style: GoogleFonts.lato(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+            children: [
+              TextSpan(
+                  text: ' (${monthlyHour}h)',
+                  style: GoogleFonts.lato(fontSize: 13, fontWeight: FontWeight.w500)),
+            ],
+          ),
+        ),
         const SizedBox(height: 12),
         Row(
           children: <Widget>[
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: ShiftStatus.values.map((e) {
-                    return giveCount(e, index) != null
-                        ? Text(
-                            '${e.toStr()}:',
-                            style: GoogleFonts.lato(fontSize: 15),
-                          )
-                        : const SizedBox.shrink();
-                  }).toList(),
+                SizedBox(
+                  height: 132,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children:
+                        ShiftStatus.values.map((e) => buildShiftStatusText(e, index)).toList(),
+                  ),
                 ),
-                // const SizedBox(height: 12),
-                Text(
-                  'Monthly hours:',
-                  style: GoogleFonts.lato(fontSize: 15),
-                ),
-                Text(
-                  'Total hours:',
-                  style: GoogleFonts.lato(fontSize: 15),
-                ),
+                const SizedBox(height: 12),
+                buildLabelText('Total hours:'),
+                buildLabelText('Calculated hours:'),
               ],
             ),
-            // const SizedBox(width: 12),
+            const SizedBox(width: 18),
             Column(
+              mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: ShiftStatus.values.map((e) {
-                    return giveCount(e, index) != null
-                        ? Text(
-                            '${giveCount(e, index)}',
-                            style: GoogleFonts.lato(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          )
-                        : const SizedBox.shrink();
-                  }).toList(),
-                ),
-                // const SizedBox(height: 12),
-                Text(
-                  '${monthlyHours[index == 0 ? monthInt - 1 : monthInt]}',
-                  style: GoogleFonts.lato(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
+                SizedBox(
+                  height: 140,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: ShiftStatus.values.map((e) => buildShiftCountText(e, index)).toList(),
                   ),
                 ),
-                Text(
-                  '$totalHour',
-                  style: GoogleFonts.lato(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                const SizedBox(height: 12),
+                buildResultText(totalHour.toString()),
+                buildResultText(calHour.toStringAsFixed(1)),
               ],
             ),
-            // const SizedBox(height: 24),
           ],
         ),
         Padding(
@@ -245,45 +256,47 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
             children: [
               Text(
                 'Expected salary',
-                style: GoogleFonts.lato(fontSize: 20, fontWeight: FontWeight.bold),
+                style: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ],
           ),
         ),
         Text(
-          '${netSalary.toStringAsFixed(2)}',
-          style: GoogleFonts.lato(fontSize: 14, fontWeight: FontWeight.bold),
+          netSalary.toStringAsFixed(2),
+          style: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
         ),
       ],
     );
   }
 
   int calculateTotalHour({required index}) {
-    int result = (giveCount(ShiftStatus.day, index) ?? 0) * 11 +
-        (giveCount(ShiftStatus.night, index) ?? 0) * 11 +
-        (giveCount(ShiftStatus.nightIn, index) ?? 0) * 3 +
-        (giveCount(ShiftStatus.nightOut, index) ?? 0) * 8 +
-        (giveCount(ShiftStatus.holidayDay, index) ?? 0) * 11 +
-        (giveCount(ShiftStatus.holidayIn, index) ?? 0) * 3 +
-        (giveCount(ShiftStatus.holidayOut, index) ?? 0) * 8 +
-        (giveCount(ShiftStatus.regular, index) ?? 0) * 8 +
-        (giveCount(ShiftStatus.regularShort, index) ?? 0) * 7;
-
-    return result;
+    return calculateHour(index, 11, 11, 3, 8, 11, 3, 8, 8, 7).toInt();
   }
 
   double calculatedHour({required index}) {
-    double result = (giveCount(ShiftStatus.day, index) ?? 0) * 11.6 +
-        (giveCount(ShiftStatus.night, index) ?? 0) * 15.4 +
-        (giveCount(ShiftStatus.nightIn, index) ?? 0) * 3 * 1.4 +
-        (giveCount(ShiftStatus.nightOut, index) ?? 0) * 8 * 1.4 +
-        (giveCount(ShiftStatus.holidayDay, index) ?? 0) * 11 * 2 +
-        (giveCount(ShiftStatus.holidayIn, index) ?? 0) * 3 * 2 +
-        (giveCount(ShiftStatus.holidayOut, index) ?? 0) * 8 * 2 +
-        (giveCount(ShiftStatus.regular, index) ?? 0) * 8 +
-        (giveCount(ShiftStatus.regularShort, index) ?? 0) * 7;
+    return calculateHour(index, 11.6, 15.4, 4.2, 11.2, 22, 6, 16, 8, 7);
+  }
 
-    return result;
+  double calculateHour(
+      int index,
+      double dayRate,
+      double nightRate,
+      double nightInRate,
+      double nightOutRate,
+      double holidayDayRate,
+      double holidayInRate,
+      double holidayOutRate,
+      double regularRate,
+      double regularShortRate) {
+    return (giveCount(ShiftStatus.day, index) ?? 0) * dayRate +
+        (giveCount(ShiftStatus.night, index) ?? 0) * nightRate +
+        (giveCount(ShiftStatus.nightIn, index) ?? 0) * nightInRate +
+        (giveCount(ShiftStatus.nightOut, index) ?? 0) * nightOutRate +
+        (giveCount(ShiftStatus.holidayDay, index) ?? 0) * holidayDayRate +
+        (giveCount(ShiftStatus.holidayIn, index) ?? 0) * holidayInRate +
+        (giveCount(ShiftStatus.holidayOut, index) ?? 0) * holidayOutRate +
+        (giveCount(ShiftStatus.regular, index) ?? 0) * regularRate +
+        (giveCount(ShiftStatus.regularShort, index) ?? 0) * regularShortRate;
   }
 
   double calculateTax(double f4, double h4, double a8) {
@@ -315,5 +328,45 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
   int? giveCount(ShiftStatus shiftStatus, int index) {
     final provider = context.read<EmployeesProvider>();
     return provider.shiftCount[index][shiftStatus.toString()];
+  }
+
+  Widget buildShiftStatusText(ShiftStatus status, int index) {
+    final count = giveCount(status, index);
+    return count != null
+        ? Text(
+            '${status.toStr()}:',
+            style: GoogleFonts.lato(fontSize: 15),
+          )
+        : const SizedBox.shrink();
+  }
+
+  Widget buildShiftCountText(ShiftStatus status, int index) {
+    final count = giveCount(status, index);
+    return count != null
+        ? Text(
+            '$count',
+            style: GoogleFonts.lato(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+            ),
+          )
+        : const SizedBox.shrink();
+  }
+
+  Text buildLabelText(String text) {
+    return Text(
+      text,
+      style: GoogleFonts.lato(fontSize: 15),
+    );
+  }
+
+  Text buildResultText(String text) {
+    return Text(
+      text,
+      style: GoogleFonts.lato(
+        fontSize: 15,
+        fontWeight: FontWeight.bold,
+      ),
+    );
   }
 }

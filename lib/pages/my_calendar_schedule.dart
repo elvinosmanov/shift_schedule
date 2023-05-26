@@ -21,6 +21,7 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
   @override
   Widget build(BuildContext context) {
     final provider = context.read<EmployeesProvider>();
+    provider.shiftCount = [{}, {}];
     final startWeekday = provider.dailyShiftsList[0].date.weekday - 1; //start from zero
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
@@ -91,7 +92,7 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                             value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
                       );
                       if (index >= 0) {
-                        color = kNightColorSL;
+                        color = const Color.fromARGB(255, 177, 120, 243);
                         shiftStatus = 'Vac';
                         shift = ShiftStatus.vacation;
                       } else {
@@ -139,21 +140,7 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                     shift = ShiftStatus.holidayOut;
                   }
                 }
-                if (provider.beginningOfMonth.month == result.date.month) {
-                  provider.shiftCount.add({});
-                  provider.shiftCount[0].update(
-                    shift.toString(),
-                    (value) => value + 1,
-                    ifAbsent: () => 1,
-                  );
-                } else {
-                  provider.shiftCount.add({});
-                  provider.shiftCount[1].update(
-                    shift.toString(),
-                    (value) => value + 1,
-                    ifAbsent: () => 1,
-                  );
-                }
+                provider.fillShiftCount(result.date.month, shift);
                 return Container(
                   decoration: BoxDecoration(
                       color: color,

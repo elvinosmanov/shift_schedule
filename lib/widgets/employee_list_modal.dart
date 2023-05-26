@@ -25,7 +25,7 @@ class EmployeeListModal extends StatelessWidget {
                   icon: const Icon(Icons.arrow_back),
                 ),
               ),
-              Container(
+              SizedBox(
                 height: 48,
                 width: double.infinity,
                 child: Center(

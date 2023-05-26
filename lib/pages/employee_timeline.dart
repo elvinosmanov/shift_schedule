@@ -68,9 +68,14 @@ class _EmployeeTimeLineState extends State<EmployeeTimeLine> {
                 int i = dailyShift.dayShiftEmployee.indexWhere(
                   (value) => value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
                 );
-                int j = dailyShift.nightShiftEmployee.indexWhere(
+                final nightIn = dailyShift.nightInShiftEmployee.indexWhere(
                   (value) => value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
                 );
+                
+                final night = dailyShift.nightShiftEmployee.indexWhere(
+                  (value) => value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
+                );
+                int j = nightIn + night;
                 if (i + j >= -1) {
                   hasSelectedController = true;
                 }
@@ -88,7 +93,7 @@ class _EmployeeTimeLineState extends State<EmployeeTimeLine> {
                       const SizedBox(width: 10),
                       EmployeeScheduleCards(
                         isDayShift: false,
-                        employees: dailyShift.nightShiftEmployee,
+                        employees: [...dailyShift.nightShiftEmployee,...dailyShift.nightInShiftEmployee],
                       ),
                     ],
                   ),

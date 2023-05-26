@@ -52,7 +52,6 @@ class EmployeesProvider extends ChangeNotifier {
 
   List<Map<String, int>> shiftCount = [];
 
-
   set employees(List<Employee> value) {
     _employees = value;
     notifyListeners();
@@ -200,7 +199,7 @@ class EmployeesProvider extends ChangeNotifier {
     for (var dailyShift in dailyShiftsList) {
       int maxLength = max(
         dailyShift.dayShiftEmployee.length,
-        dailyShift.nightShiftEmployee.length,
+        [...dailyShift.nightShiftEmployee, ...dailyShift.nightInShiftEmployee].length,
       );
       count += maxLength;
       index++;
@@ -224,5 +223,23 @@ class EmployeesProvider extends ChangeNotifier {
     calculateShift();
     uploadLoading = false;
     hasUpdate = false;
+    shiftCount = [{}, {}];
+  }
+
+  void fillShiftCount(int monthInt, ShiftStatus shift) {
+    
+    if (beginningOfMonth.month == monthInt) {
+      shiftCount[0].update(
+        shift.toString(),
+        (value) => value + 1,
+        ifAbsent: () => 1,
+      );
+    } else {
+      shiftCount[1].update(
+        shift.toString(),
+        (value) => value + 1,
+        ifAbsent: () => 1,
+      );
+    }
   }
 }
