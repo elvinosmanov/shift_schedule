@@ -50,7 +50,7 @@ class EmployeesProvider extends ChangeNotifier {
 
   List<Employee> get employees => _employees;
 
-  List<Map<String, int>> shiftCount = [];
+  List<List<Map<String, int>>> shiftCount = [];
 
   set employees(List<Employee> value) {
     _employees = value;
@@ -165,10 +165,28 @@ class EmployeesProvider extends ChangeNotifier {
 
     int beginningDayOfYear = beginningOfMonth.difference(DateTime(today.year, 1, 1)).inDays;
     int daysLeft = (12 - today.month) * 31;
+    List<Map<String, List<Employee?>?>> alma = [];
+    shiftCount = List.generate(employees.length, (index) => [{},{}]);
     for (var i = 0; i < daysLeft - 1; i++) {
-      DailyShifts dailyShifts = DailyShifts(date: beginningOfMonth.add(Duration(days: i)));
-      for (var employee in employees) {
+      final currentDate = beginningOfMonth.add(Duration(days: i));
+
+      DailyShifts dailyShifts = DailyShifts(date: currentDate);
+      int index = 0;
+      for (Employee employee in employees) {
         final shiftStatus = employee.dates[beginningDayOfYear + i].statusToEnum;
+        alma[i].update(
+          shiftStatus.toString(),
+          (value) => value!..add(employee),
+          ifAbsent: () => [employee],
+        );
+
+        fillShiftCount(
+            index: index,
+            isHoliday: isHolidayToday(currentDate),
+            monthInt: currentDate.month,
+            shift: shiftStatus);
+        index++;
+
         if (shiftStatus == ShiftStatus.day) {
           dailyShifts.dayShiftEmployee.add(employee);
         } else if (shiftStatus == ShiftStatus.night) {
@@ -191,6 +209,7 @@ class EmployeesProvider extends ChangeNotifier {
         break;
       }
     }
+    print(alma[6]);
   }
 
   calculateScrollOfsset() {
@@ -223,19 +242,32 @@ class EmployeesProvider extends ChangeNotifier {
     calculateShift();
     uploadLoading = false;
     hasUpdate = false;
-    shiftCount = [{}, {}];
+    shiftCount = List.generate(employees.length, (index) => [{},{}]);
   }
 
-  void fillShiftCount(int monthInt, ShiftStatus shift) {
-    
+  void fillShiftCount(
+      {required int monthInt,
+      required ShiftStatus shift,
+      required bool isHoliday,
+      required int index}) {
+    if (isHoliday) {
+      if (shift == ShiftStatus.day || shift == ShiftStatus.night) {
+        shift = ShiftStatus.holidayDay;
+      } else if (shift == ShiftStatus.nightIn) {
+        shift = ShiftStatus.holidayIn;
+      } else if (shift == ShiftStatus.nightOut) {
+        shift = ShiftStatus.holidayOut;
+      }
+    }
+
     if (beginningOfMonth.month == monthInt) {
-      shiftCount[0].update(
+      shiftCount[index][0].update(
         shift.toString(),
         (value) => value + 1,
         ifAbsent: () => 1,
       );
     } else {
-      shiftCount[1].update(
+      shiftCount[index][1].update(
         shift.toString(),
         (value) => value + 1,
         ifAbsent: () => 1,

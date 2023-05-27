@@ -54,4 +54,13 @@ Map<String, dynamic> toMap() {
   String toString() {
     return 'Employee(id: $id, firstName: $firstName, lastName: $lastName, role: $role, dates: ${dates.length})';
   }
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Employee && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }

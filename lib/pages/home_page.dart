@@ -127,7 +127,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     );
 
     if (result != null) {
-      context.read<EmployeesProvider>().shiftCount = [{}, {}];
+      // context.read<EmployeesProvider>().shiftCount = [{}, {}];
 
       context.read<EmployeesProvider>().selectedEmployee = result;
     }
@@ -135,7 +135,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
 
   void openSalaryCalculationModal() async {
     final provider = context.read<EmployeesProvider>();
-    print('lengthL ${provider.shiftCount.length}');
     await showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -156,7 +155,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                   controller: controller,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   maxLines: 1,
-                  
                   decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Enter your gross',
@@ -187,8 +185,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
         context.read<EmployeesProvider>().monthlyHours[index == 0 ? monthInt - 1 : monthInt];
     final int totalHour = calculateTotalHour(index: index);
     final double calHour = calculatedHour(index: index);
-    print(totalHour);
-    print(calHour);
     double finalMoney =
         controller.text.isEmpty ? 0 : double.parse(controller.text) * calHour / (monthlyHour ?? 1);
     final calTax = calculateTax(finalMoney, 0, 200);
@@ -235,7 +231,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  height: 140,
+                  height: 132,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -327,7 +323,11 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
 
   int? giveCount(ShiftStatus shiftStatus, int index) {
     final provider = context.read<EmployeesProvider>();
-    return provider.shiftCount[index][shiftStatus.toString()];
+    if (provider.shiftCount.length > provider.selectedEmployee!.id - 1 &&
+        provider.shiftCount[provider.selectedEmployee!.id - 1].length > index) {
+      return provider.shiftCount[provider.selectedEmployee!.id - 1][index][shiftStatus.toString()];
+    }
+    return null;
   }
 
   Widget buildShiftStatusText(ShiftStatus status, int index) {

@@ -4,6 +4,7 @@ import 'employee.dart';
 
 class DailyShifts {
    DateTime date;
+   List<Map<String, dynamic>> shiftEmployees = [];
    List<Employee?> dayShiftEmployee = [];
    List<Employee?> nightShiftEmployee = [];
    List<Employee?> nightInShiftEmployee = [];
