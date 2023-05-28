@@ -3,11 +3,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shift_schedule/enums/positions.dart';
+import 'package:shift_schedule/extensions/shift_status_extension.dart';
 
 import 'package:shift_schedule/methods/global_methods.dart';
 import 'package:shift_schedule/models/shift_model.dart';
 import 'package:shift_schedule/ui/themes.dart';
 
+import '../models/employee.dart';
 import '../provider/employee_provider.dart';
 
 class MyCalendarSchedule extends StatefulWidget {
@@ -18,6 +20,17 @@ class MyCalendarSchedule extends StatefulWidget {
 }
 
 class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
+  ShiftStatus whichShiftStatus(Map<ShiftStatus, List<Employee>> map) {
+    final selectedEmployee = context.watch<EmployeesProvider>().selectedEmployee!;
+    for (final entry in map.entries) {
+      final employeeList = entry.value;
+      if (employeeList.contains(selectedEmployee)) {
+        return entry.key;
+      }
+    }
+    return ShiftStatus.off;
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.read<EmployeesProvider>();
@@ -53,84 +66,109 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                 if (startWeekday > gridIndex) {
                   return Container();
                 }
-                final result = provider.dailyShiftsList[gridIndex - startWeekday];
-                bool isHoliday = provider.isHolidayToday(result.date);
-                final isToday = GlobalMethods.isSameDate(DateTime.now(), result.date);
+                final dailyShift = provider.dailyShiftsList[gridIndex - startWeekday];
+                bool isHoliday = provider.isHolidayToday(dailyShift.date);
+                final isToday = GlobalMethods.isSameDate(DateTime.now(), dailyShift.date);
                 Color color = Colors.grey[100]!;
-                String shiftStatus = 'Off';
-                var shift = ShiftStatus.off;
+                // String shiftStatus = 'Off';
+                // var shift = ShiftStatus.off;
 
-                final Color textColor = shiftStatus == 'Night' ? Colors.white : Colors.black;
-
-                int index = result.dayShiftEmployee.indexWhere(
-                  (value) => value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
-                );
-                if (index >= 0) {
-                  color = kSunColorPri;
-                  shiftStatus = 'Day';
-                  shift = ShiftStatus.day;
-                } else {
-                  int index = result.nightShiftEmployee.indexWhere(
-                    (value) => value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
-                  );
-                  if (index >= 0) {
+                final shiftStatus = whichShiftStatus(dailyShift.shiftEmployees);
+                final Color textColor =
+                    shiftStatus == ShiftStatus.night ? Colors.white : Colors.black;
+                switch (shiftStatus) {
+                  case ShiftStatus.day:
+                    color = kSunColorPri;
+                    break;
+                  case ShiftStatus.nightIn:
+                    print('yes');
+                    color = kNightColorSL;
+                    break;
+                  case ShiftStatus.nightOut:
+                    print('yes');
+                    color = kNightColorSL.withOpacity(0.4);
+                    break;
+                  case ShiftStatus.night:
                     color = kNightColorPri;
-                    shiftStatus = 'Night';
-                    shift = ShiftStatus.night;
-                  } else {
-                    int index = result.regularShiftEmployee.indexWhere(
-                      (value) =>
-                          value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
-                    );
-                    if (index >= 0) {
-                      color = Colors.green[200]!;
-                      shiftStatus = 'Reg';
-                      shift = ShiftStatus.regular;
-                    } else {
-                      int index = result.vacationShiftEmployee.indexWhere(
-                        (value) =>
-                            value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
-                      );
-                      if (index >= 0) {
-                        color = const Color.fromARGB(255, 177, 120, 243);
-                        shiftStatus = 'Vac';
-                        shift = ShiftStatus.vacation;
-                      } else {
-                        int index = result.regularShortShiftEmployee.indexWhere(
-                          (value) =>
-                              value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
-                        );
-                        if (index >= 0) {
-                          color = kNightColorSL.withOpacity(0.6);
-                          shiftStatus = 'RegShort';
-                          shift = ShiftStatus.regularShort;
-                        } else {
-                          int index = result.nightInShiftEmployee.indexWhere(
-                            (value) =>
-                                value!.id ==
-                                context.watch<EmployeesProvider>().selectedEmployee!.id,
-                          );
-                          if (index >= 0) {
-                            color = kNightColorSL.withOpacity(0.5);
-                            shiftStatus = 'In';
-                            shift = ShiftStatus.nightIn;
-                          } else {
-                            int index = result.nightOutShiftEmployee.indexWhere(
-                              (value) =>
-                                  value!.id ==
-                                  context.watch<EmployeesProvider>().selectedEmployee!.id,
-                            );
-                            if (index >= 0) {
-                              color = kNightColorSL.withOpacity(0.5);
-                              shiftStatus = 'Out';
-                              shift = ShiftStatus.nightOut;
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
+                    break;
+                  case ShiftStatus.regular:
+                    color = Colors.green[200]!;
+                    break;
+                  case ShiftStatus.vacation:
+                    color = const Color.fromARGB(255, 177, 120, 243);
+                    break;
+                  default:
+                    color = Colors.grey[100]!;
                 }
+                // int index = dailyShift.dayShiftEmployee.indexWhere(
+                //   (value) => value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
+                // );
+                // if (index >= 0) {
+                //   color = kSunColorPri;
+                //   shiftStatus = 'Day';
+                //   shift = ShiftStatus.day;
+                // } else {
+                //   int index = dailyShift.nightShiftEmployee.indexWhere(
+                //     (value) => value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
+                //   );
+                //   if (index >= 0) {
+                //     color = kNightColorPri;
+                //     shiftStatus = 'Night';
+                //     shift = ShiftStatus.night;
+                //   } else {
+                //     int index = dailyShift.regularShiftEmployee.indexWhere(
+                //       (value) =>
+                //           value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
+                //     );
+                //     if (index >= 0) {
+                //       color = Colors.green[200]!;
+                //       shiftStatus = 'Reg';
+                //       shift = ShiftStatus.regular;
+                //     } else {
+                //       int index = dailyShift.vacationShiftEmployee.indexWhere(
+                //         (value) =>
+                //             value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
+                //       );
+                //       if (index >= 0) {
+                //         color = const Color.fromARGB(255, 177, 120, 243);
+                //         shiftStatus = 'Vac';
+                //         shift = ShiftStatus.vacation;
+                //       } else {
+                //         int index = dailyShift.regularShortShiftEmployee.indexWhere(
+                //           (value) =>
+                //               value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
+                //         );
+                //         if (index >= 0) {
+                //           color = kNightColorSL.withOpacity(0.6);
+                //           shiftStatus = 'RegShort';
+                //           shift = ShiftStatus.regularShort;
+                //         } else {
+                //           int index = dailyShift.nightInShiftEmployee.indexWhere(
+                //             (value) =>
+                //                 value!.id ==
+                //                 context.watch<EmployeesProvider>().selectedEmployee!.id,
+                //           );
+                //           if (index >= 0) {
+                //             color = kNightColorSL.withOpacity(0.5);
+                //             shiftStatus = 'In';
+                //             shift = ShiftStatus.nightIn;
+                //           } else {
+                //             int index = dailyShift.nightOutShiftEmployee.indexWhere(
+                //               (value) =>
+                //                   value!.id ==
+                //                   context.watch<EmployeesProvider>().selectedEmployee!.id,
+                //             );
+                //             if (index >= 0) {
+                //               color = kNightColorSL.withOpacity(0.5);
+                //               shiftStatus = 'Out';
+                //               shift = ShiftStatus.nightOut;
+                //             }
+                //           }
+                //         }
+                //       }
+                //     }
+                //   }
+                // }
                 // if (isHoliday) {
                 //   if (shift == ShiftStatus.day || shift == ShiftStatus.night) {
                 //     shift = ShiftStatus.holidayDay;
@@ -156,8 +194,8 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                             child: CalendarIconWidget(
                           iconData: Icons.today,
                         )),
-                      _buildDateWidget(result, textColor),
-                      _buildShiftStatusText(shiftStatus, textColor)
+                      _buildDateWidget(dailyShift, textColor),
+                      _buildShiftStatusText(shiftStatus.toShortStr(), textColor)
                     ],
                   ),
                 );

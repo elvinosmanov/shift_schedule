@@ -165,8 +165,8 @@ class EmployeesProvider extends ChangeNotifier {
 
     int beginningDayOfYear = beginningOfMonth.difference(DateTime(today.year, 1, 1)).inDays;
     int daysLeft = (12 - today.month) * 31;
-    List<Map<String, List<Employee?>?>> alma = [];
-    shiftCount = List.generate(employees.length, (index) => [{},{}]);
+    // List<Map<String, List<Employee?>?>> alma = [];
+    shiftCount = List.generate(employees.length, (index) => [{}, {}]);
     for (var i = 0; i < daysLeft - 1; i++) {
       final currentDate = beginningOfMonth.add(Duration(days: i));
 
@@ -174,9 +174,12 @@ class EmployeesProvider extends ChangeNotifier {
       int index = 0;
       for (Employee employee in employees) {
         final shiftStatus = employee.dates[beginningDayOfYear + i].statusToEnum;
-        alma[i].update(
-          shiftStatus.toString(),
-          (value) => value!..add(employee),
+        // if(shiftStatus ==ShiftStatus.nightIn){
+
+        // }
+        dailyShifts.shiftEmployees.update(
+          shiftStatus,
+          (value) => value..add(employee),
           ifAbsent: () => [employee],
         );
 
@@ -187,29 +190,29 @@ class EmployeesProvider extends ChangeNotifier {
             shift: shiftStatus);
         index++;
 
-        if (shiftStatus == ShiftStatus.day) {
-          dailyShifts.dayShiftEmployee.add(employee);
-        } else if (shiftStatus == ShiftStatus.night) {
-          dailyShifts.nightShiftEmployee.add(employee);
-        } else if (shiftStatus == ShiftStatus.nightIn) {
-          dailyShifts.nightInShiftEmployee.add(employee);
-        } else if (shiftStatus == ShiftStatus.nightOut) {
-          dailyShifts.nightOutShiftEmployee.add(employee);
-        } else if (shiftStatus == ShiftStatus.regular) {
-          dailyShifts.regularShiftEmployee.add(employee);
-        } else if (shiftStatus == ShiftStatus.regularShort) {
-          dailyShifts.regularShiftEmployee.add(employee);
-        } else if (shiftStatus == ShiftStatus.vacation) {
-          dailyShifts.vacationShiftEmployee.add(employee);
-        }
+        // if (shiftStatus == ShiftStatus.day) {
+        //   dailyShifts.dayShiftEmployee.add(employee);
+        // } else if (shiftStatus == ShiftStatus.night) {
+        //   dailyShifts.nightShiftEmployee.add(employee);
+        // } else if (shiftStatus == ShiftStatus.nightIn) {
+        //   dailyShifts.nightInShiftEmployee.add(employee);
+        // } else if (shiftStatus == ShiftStatus.nightOut) {
+        //   dailyShifts.nightOutShiftEmployee.add(employee);
+        // } else if (shiftStatus == ShiftStatus.regular) {
+        //   dailyShifts.regularShiftEmployee.add(employee);
+        // } else if (shiftStatus == ShiftStatus.regularShort) {
+        //   dailyShifts.regularShiftEmployee.add(employee);
+        // } else if (shiftStatus == ShiftStatus.vacation) {
+        //   dailyShifts.vacationShiftEmployee.add(employee);
+        // }
       }
-      if (dailyShifts.dayShiftEmployee.length >= 2) {
+      if (dailyShifts.shiftEmployees.containsKey(ShiftStatus.day) &&
+          dailyShifts.shiftEmployees[ShiftStatus.day]!.length >= 2) {
         dailyShiftsList.add(dailyShifts);
       } else {
         break;
       }
     }
-    print(alma[6]);
   }
 
   calculateScrollOfsset() {
@@ -217,8 +220,9 @@ class EmployeesProvider extends ChangeNotifier {
     int count = 0;
     for (var dailyShift in dailyShiftsList) {
       int maxLength = max(
-        dailyShift.dayShiftEmployee.length,
-        [...dailyShift.nightShiftEmployee, ...dailyShift.nightInShiftEmployee].length,
+        dailyShift.shiftEmployees[ShiftStatus.day]!.length,
+        (dailyShift.shiftEmployees[ShiftStatus.night]!.length +
+            dailyShift.shiftEmployees[ShiftStatus.nightIn]!.length),
       );
       count += maxLength;
       index++;
@@ -235,6 +239,7 @@ class EmployeesProvider extends ChangeNotifier {
   }
 
   updateDatabase() async {
+    shiftCount = List.generate(employees.length, (index) => [{}, {}]);
     uploadLoading = true;
     fetchHolidays();
     fetchMonthlyHours();
@@ -242,7 +247,6 @@ class EmployeesProvider extends ChangeNotifier {
     calculateShift();
     uploadLoading = false;
     hasUpdate = false;
-    shiftCount = List.generate(employees.length, (index) => [{},{}]);
   }
 
   void fillShiftCount(

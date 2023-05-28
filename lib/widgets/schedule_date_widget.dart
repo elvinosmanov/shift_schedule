@@ -3,21 +3,24 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import 'package:shift_schedule/enums/positions.dart';
 import 'package:shift_schedule/methods/global_methods.dart';
 import 'package:shift_schedule/provider/employee_provider.dart';
+import 'package:shift_schedule/ui/themes.dart';
 
 class ScheduleDateWidget extends StatelessWidget {
-  const ScheduleDateWidget({
+  ScheduleDateWidget({
     Key? key,
+    required this.status,
     required this.date,
-    required this.hasController,
   }) : super(key: key);
   final DateTime date;
-  final bool hasController;
+  final ShiftStatus status;
   @override
   Widget build(BuildContext context) {
     bool isHoliday = context.read<EmployeesProvider>().isHolidayToday(date);
-
+    final hasController = status != ShiftStatus.off;
+    final isDay = status == ShiftStatus.day;
     return Container(
       margin: const EdgeInsets.only(right: 8),
       width: 60,
@@ -27,7 +30,11 @@ class ScheduleDateWidget extends StatelessWidget {
             padding: hasController ? const EdgeInsets.all(2) : EdgeInsets.zero,
             decoration: BoxDecoration(
               border: Border.all(
-                  color: hasController ? Colors.green : Colors.transparent,
+                  color: hasController
+                      ? isDay
+                          ? kSunColorSL
+                          : kNightColorSL
+                      : Colors.transparent,
                   width: hasController ? 1.5 : 0.0),
               borderRadius: BorderRadius.circular(hasController ? 4 : 0),
             ),

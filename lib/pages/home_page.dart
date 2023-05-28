@@ -65,6 +65,8 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                     children: <Widget>[
                       if (provider.hasUpdate)
                         IconButton(
+                            padding: const EdgeInsets.all(4),
+                            constraints: const BoxConstraints(),
                             onPressed: provider.uploadLoading ? null : provider.updateDatabase,
                             icon: provider.uploadLoading
                                 ? const SizedBox(
@@ -80,16 +82,24 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                                     color: Colors.red,
                                   )),
                       IconButton(
+                          padding: const EdgeInsets.all(4),
+                          constraints: const BoxConstraints(),
                           onPressed: () {
                             provider.isCalendarView = !provider.isCalendarView;
                           },
                           icon: Icon(provider.isCalendarView
                               ? Icons.view_timeline_outlined
                               : Icons.calendar_month_outlined)),
-                      IconButton(onPressed: openListModal, icon: const Icon(Icons.settings)),
                       IconButton(
+                          padding: const EdgeInsets.all(4),
+                          constraints: const BoxConstraints(),
                           onPressed: openSalaryCalculationModal,
-                          icon: const Icon(Icons.attach_money_outlined))
+                          icon: const Icon(Icons.attach_money_outlined)),
+                      IconButton(
+                          padding: const EdgeInsets.all(4),
+                          constraints: const BoxConstraints(),
+                          onPressed: openListModal,
+                          icon: const Icon(Icons.person_search)),
                     ],
                   )
                 ],
@@ -159,7 +169,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                       border: OutlineInputBorder(),
                       labelText: 'Enter your gross',
                       isCollapsed: true,
-                      contentPadding: EdgeInsets.symmetric(vertical: 6, horizontal: 8)),
+                      contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8)),
                 ),
               ),
               const SizedBox(height: 8),
@@ -191,77 +201,82 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     final amountHeld =
         finalMoney * 0.03 + finalMoney * 0.01 + finalMoney * 0.02 + finalMoney * 0.005 + calTax;
     final netSalary = finalMoney - amountHeld;
-    return Column(
-      children: [
-        RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            text:
-                DateFormat.MMMM().format(index == 0 ? month : month.add(const Duration(days: 31))),
-            style: GoogleFonts.lato(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
-            children: [
-              TextSpan(
-                  text: ' (${monthlyHour}h)',
-                  style: GoogleFonts.lato(fontSize: 13, fontWeight: FontWeight.w500)),
-            ],
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+      child: Column(
+        children: [
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              text: DateFormat.MMMM()
+                  .format(index == 0 ? month : month.add(const Duration(days: 31))),
+              style:
+                  GoogleFonts.lato(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+              children: [
+                TextSpan(
+                    text: ' (${monthlyHour}h)',
+                    style: GoogleFonts.lato(fontSize: 13, fontWeight: FontWeight.w500)),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: <Widget>[
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 132,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children:
-                        ShiftStatus.values.map((e) => buildShiftStatusText(e, index)).toList(),
+          const SizedBox(height: 12),
+          Row(
+            children: <Widget>[
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 132,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children:
+                          ShiftStatus.values.map((e) => buildShiftStatusText(e, index)).toList(),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                buildLabelText('Total hours:'),
-                buildLabelText('Calculated hours:'),
-              ],
-            ),
-            const SizedBox(width: 18),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 132,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: ShiftStatus.values.map((e) => buildShiftCountText(e, index)).toList(),
+                  const SizedBox(height: 12),
+                  buildLabelText('Total hours:'),
+                  buildLabelText('Calculated hours:'),
+                ],
+              ),
+              const SizedBox(width: 8),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  SizedBox(
+                    height: 132,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children:
+                          ShiftStatus.values.map((e) => buildShiftCountText(e, index)).toList(),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                buildResultText(totalHour.toString()),
-                buildResultText(calHour.toStringAsFixed(1)),
-              ],
-            ),
-          ],
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 16.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                'Expected salary',
-                style: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.bold),
+                  const SizedBox(height: 12),
+                  buildResultText(totalHour.toString()),
+                  buildResultText(calHour.toStringAsFixed(1)),
+                ],
               ),
             ],
           ),
-        ),
-        Text(
-          netSalary.toStringAsFixed(2),
-          style: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
-        ),
-      ],
+          Padding(
+            padding: const EdgeInsets.only(top: 16.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  'Expected salary',
+                  style: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            netSalary.toStringAsFixed(2),
+            style: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+          ),
+        ],
+      ),
     );
   }
 

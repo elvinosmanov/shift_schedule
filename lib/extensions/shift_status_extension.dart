@@ -89,4 +89,30 @@ extension ShiftStatusExtension on ShiftStatus {
         return 'Off Day';
     }
   }
+  String toShortStr() {
+    switch (this) {
+      case ShiftStatus.day:
+        return 'Day';
+      case ShiftStatus.night:
+        return 'Night';
+      case ShiftStatus.nightIn:
+        return 'In';
+      case ShiftStatus.nightOut:
+        return 'Out';
+      case ShiftStatus.regular:
+        return 'Reg';
+      case ShiftStatus.regularShort:
+        return 'SReg';
+      case ShiftStatus.holidayDay:
+        return 'Holiday';
+      case ShiftStatus.holidayIn:
+        return 'Holiday In';
+      case ShiftStatus.holidayOut:
+        return 'Holiday Out';
+      case ShiftStatus.vacation:
+        return 'Vac';
+      case ShiftStatus.off:
+        return 'Off';
+    }
+  }
 }
