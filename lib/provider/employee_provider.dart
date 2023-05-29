@@ -151,10 +151,7 @@ class EmployeesProvider extends ChangeNotifier {
     final savedDate = await DatabaseHelper.getDate();
     final date = await ScheduleSheetsApi.fetchUpdatedDate();
     if (date != savedDate) {
-      // fetchEmployees();
-      // calculateShift();
       DatabaseHelper.saveDate(date);
-      // await ScheduleSheetsApi.fetchHolidays();
       hasUpdate = true;
     }
   }
@@ -174,9 +171,6 @@ class EmployeesProvider extends ChangeNotifier {
       int index = 0;
       for (Employee employee in employees) {
         final shiftStatus = employee.dates[beginningDayOfYear + i].statusToEnum;
-        // if(shiftStatus ==ShiftStatus.nightIn){
-
-        // }
         dailyShifts.shiftEmployees.update(
           shiftStatus,
           (value) => value..add(employee),
@@ -189,22 +183,6 @@ class EmployeesProvider extends ChangeNotifier {
             monthInt: currentDate.month,
             shift: shiftStatus);
         index++;
-
-        // if (shiftStatus == ShiftStatus.day) {
-        //   dailyShifts.dayShiftEmployee.add(employee);
-        // } else if (shiftStatus == ShiftStatus.night) {
-        //   dailyShifts.nightShiftEmployee.add(employee);
-        // } else if (shiftStatus == ShiftStatus.nightIn) {
-        //   dailyShifts.nightInShiftEmployee.add(employee);
-        // } else if (shiftStatus == ShiftStatus.nightOut) {
-        //   dailyShifts.nightOutShiftEmployee.add(employee);
-        // } else if (shiftStatus == ShiftStatus.regular) {
-        //   dailyShifts.regularShiftEmployee.add(employee);
-        // } else if (shiftStatus == ShiftStatus.regularShort) {
-        //   dailyShifts.regularShiftEmployee.add(employee);
-        // } else if (shiftStatus == ShiftStatus.vacation) {
-        //   dailyShifts.vacationShiftEmployee.add(employee);
-        // }
       }
       if (dailyShifts.shiftEmployees.containsKey(ShiftStatus.day) &&
           dailyShifts.shiftEmployees[ShiftStatus.day]!.length >= 2) {

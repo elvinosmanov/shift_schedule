@@ -37,7 +37,6 @@ class _EmployeeTimeLineState extends State<EmployeeTimeLine> {
   @override
   void initState() {
     context.read<EmployeesProvider>().calculateScrollOfsset();
-    // WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToIndex(DateTime.now(),context.read<EmployeesProvider>()));
     super.initState();
   }
 
@@ -68,7 +67,6 @@ class _EmployeeTimeLineState extends State<EmployeeTimeLine> {
     return Padding(
       padding: const EdgeInsets.only(left: 12.0, right: 12),
       child: Column(
-        // crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           CustomDatePicker(
             onDateChange: (selectedDate) => _scrollToIndex(selectedDate, provider),
@@ -80,23 +78,7 @@ class _EmployeeTimeLineState extends State<EmployeeTimeLine> {
               itemCount: provider.dailyShiftsList.length,
               itemBuilder: (context, index) {
                 final dailyShift = provider.dailyShiftsList[index];
-                // bool isHoliday = provider.isHolidayToday(dailyShift.date);
                 final selectedControllerStatus = isEmployeeSelected(dailyShift.shiftEmployees);
-                
-                // int i = dailyShift.dayShiftEmployee.indexWhere(
-                //   (value) => value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
-                // );
-                // final nightIn = dailyShift.nightInShiftEmployee.indexWhere(
-                //   (value) => value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
-                // );
-
-                // final night = dailyShift.nightShiftEmployee.indexWhere(
-                //   (value) => value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
-                // );
-                // int j = nightIn + night;
-                // if (i + j >= -1) {
-                //   hasSelectedController = true;
-                // }
                 return Container(
                   padding: const EdgeInsets.only(bottom: 12.0, top: 12),
                   child: Row(
@@ -126,7 +108,6 @@ class _EmployeeTimeLineState extends State<EmployeeTimeLine> {
 
   List<Employee?> _combineNights(Map<ShiftStatus, List<Employee?>> shiftEmployees) {
     final result = [...shiftEmployees[ShiftStatus.night]!, ...shiftEmployees[ShiftStatus.nightIn]!];
-    print(result.length);
     return result
       ..sort(
         (a, b) => a!.id.compareTo(b!.id),

@@ -14,7 +14,6 @@ class Employee {
 
   factory Employee.fromList(List<String> dataList) {
     String fullName = dataList[1];
-    // Split full name by whitespace and assume first part is first name, rest is last name
     List<String> nameParts = fullName.split(" ");
     String firstName = nameParts[0];
     String lastName = nameParts.sublist(1).join(" ");

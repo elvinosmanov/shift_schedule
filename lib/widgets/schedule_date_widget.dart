@@ -9,7 +9,7 @@ import 'package:shift_schedule/provider/employee_provider.dart';
 import 'package:shift_schedule/ui/themes.dart';
 
 class ScheduleDateWidget extends StatelessWidget {
-  ScheduleDateWidget({
+  const ScheduleDateWidget({
     Key? key,
     required this.status,
     required this.date,
@@ -19,6 +19,7 @@ class ScheduleDateWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isHoliday = context.read<EmployeesProvider>().isHolidayToday(date);
+    bool isWeekend = (date.weekday == DateTime.saturday || date.weekday == DateTime.sunday);
     final hasController = status != ShiftStatus.off;
     final isDay = status == ShiftStatus.day;
     return Container(
@@ -45,7 +46,7 @@ class ScheduleDateWidget extends StatelessWidget {
                   style: GoogleFonts.lato(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: Colors.grey[500],
+                    color: isWeekend ? Colors.red : Colors.grey[500],
                   ),
                 ),
                 Text(

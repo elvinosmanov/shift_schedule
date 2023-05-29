@@ -34,7 +34,6 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
   @override
   Widget build(BuildContext context) {
     final provider = context.read<EmployeesProvider>();
-    // provider.shiftCount = [{}, {}];
     final startWeekday = provider.dailyShiftsList[0].date.weekday - 1; //start from zero
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
@@ -70,9 +69,6 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                 bool isHoliday = provider.isHolidayToday(dailyShift.date);
                 final isToday = GlobalMethods.isSameDate(DateTime.now(), dailyShift.date);
                 Color color = Colors.grey[100]!;
-                // String shiftStatus = 'Off';
-                // var shift = ShiftStatus.off;
-
                 final shiftStatus = whichShiftStatus(dailyShift.shiftEmployees);
                 final Color textColor =
                     shiftStatus == ShiftStatus.night ? Colors.white : Colors.black;
@@ -81,11 +77,9 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                     color = kSunColorPri;
                     break;
                   case ShiftStatus.nightIn:
-                    print('yes');
                     color = kNightColorSL;
                     break;
                   case ShiftStatus.nightOut:
-                    print('yes');
                     color = kNightColorSL.withOpacity(0.4);
                     break;
                   case ShiftStatus.night:
@@ -94,91 +88,16 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                   case ShiftStatus.regular:
                     color = Colors.green[200]!;
                     break;
+                  case ShiftStatus.regularShort:
+                    color = Colors.green[100]!;
+                    break;
                   case ShiftStatus.vacation:
                     color = const Color.fromARGB(255, 177, 120, 243);
                     break;
                   default:
                     color = Colors.grey[100]!;
                 }
-                // int index = dailyShift.dayShiftEmployee.indexWhere(
-                //   (value) => value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
-                // );
-                // if (index >= 0) {
-                //   color = kSunColorPri;
-                //   shiftStatus = 'Day';
-                //   shift = ShiftStatus.day;
-                // } else {
-                //   int index = dailyShift.nightShiftEmployee.indexWhere(
-                //     (value) => value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
-                //   );
-                //   if (index >= 0) {
-                //     color = kNightColorPri;
-                //     shiftStatus = 'Night';
-                //     shift = ShiftStatus.night;
-                //   } else {
-                //     int index = dailyShift.regularShiftEmployee.indexWhere(
-                //       (value) =>
-                //           value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
-                //     );
-                //     if (index >= 0) {
-                //       color = Colors.green[200]!;
-                //       shiftStatus = 'Reg';
-                //       shift = ShiftStatus.regular;
-                //     } else {
-                //       int index = dailyShift.vacationShiftEmployee.indexWhere(
-                //         (value) =>
-                //             value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
-                //       );
-                //       if (index >= 0) {
-                //         color = const Color.fromARGB(255, 177, 120, 243);
-                //         shiftStatus = 'Vac';
-                //         shift = ShiftStatus.vacation;
-                //       } else {
-                //         int index = dailyShift.regularShortShiftEmployee.indexWhere(
-                //           (value) =>
-                //               value!.id == context.watch<EmployeesProvider>().selectedEmployee!.id,
-                //         );
-                //         if (index >= 0) {
-                //           color = kNightColorSL.withOpacity(0.6);
-                //           shiftStatus = 'RegShort';
-                //           shift = ShiftStatus.regularShort;
-                //         } else {
-                //           int index = dailyShift.nightInShiftEmployee.indexWhere(
-                //             (value) =>
-                //                 value!.id ==
-                //                 context.watch<EmployeesProvider>().selectedEmployee!.id,
-                //           );
-                //           if (index >= 0) {
-                //             color = kNightColorSL.withOpacity(0.5);
-                //             shiftStatus = 'In';
-                //             shift = ShiftStatus.nightIn;
-                //           } else {
-                //             int index = dailyShift.nightOutShiftEmployee.indexWhere(
-                //               (value) =>
-                //                   value!.id ==
-                //                   context.watch<EmployeesProvider>().selectedEmployee!.id,
-                //             );
-                //             if (index >= 0) {
-                //               color = kNightColorSL.withOpacity(0.5);
-                //               shiftStatus = 'Out';
-                //               shift = ShiftStatus.nightOut;
-                //             }
-                //           }
-                //         }
-                //       }
-                //     }
-                //   }
-                // }
-                // if (isHoliday) {
-                //   if (shift == ShiftStatus.day || shift == ShiftStatus.night) {
-                //     shift = ShiftStatus.holidayDay;
-                //   } else if (shift == ShiftStatus.nightIn) {
-                //     shift = ShiftStatus.holidayIn;
-                //   } else if (shift == ShiftStatus.nightOut) {
-                //     shift = ShiftStatus.holidayOut;
-                //   }
-                // }
-                // provider.fillShiftCount(result.date.month, shift);
+
                 return Container(
                   decoration: BoxDecoration(
                       color: color,

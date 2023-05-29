@@ -49,9 +49,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                         DateFormat.yMMMMd().format(DateTime.now()),
                         style: subHeadingStyle,
                       ),
-                      // const SizedBox(
-                      //   height: 4,
-                      // ),
                       Text(
                         'Controller: ${provider.selectedEmployee!.firstName} ${provider.selectedEmployee!.lastName[0]}.',
                         style: GoogleFonts.lato(
@@ -137,8 +134,6 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     );
 
     if (result != null) {
-      // context.read<EmployeesProvider>().shiftCount = [{}, {}];
-
       context.read<EmployeesProvider>().selectedEmployee = result;
     }
   }

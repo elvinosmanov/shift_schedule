@@ -15,11 +15,4 @@ enum ShiftPosition { shiftLeader, shiftController, shiftTrainer, engineer }
 
 
 
-void main() {
-  print(ShiftStatus.day.toString());
-  print(ShiftStatus.night.toString());
-  print(ShiftStatus.regularShort.toString());
-}
-
-
 
