@@ -30,7 +30,7 @@ class EmployeeListModal extends StatelessWidget {
                 width: double.infinity,
                 child: Center(
                   child: Text(
-                    'Select Shift Controller',
+                    'Select Employee',
                     style: GoogleFonts.lato(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                 ),

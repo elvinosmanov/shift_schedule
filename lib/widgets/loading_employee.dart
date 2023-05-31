@@ -21,7 +21,7 @@ class LoadingEmployee extends StatelessWidget {
               size: 60.0,
             ),
             Text(
-              'Loading schedule...',
+              'Loading...',
               style: smallTextStyle,
             ),
           ],

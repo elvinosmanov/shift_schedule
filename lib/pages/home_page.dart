@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                         style: subHeadingStyle,
                       ),
                       Text(
-                        'Controller: ${provider.selectedEmployee!.firstName} ${provider.selectedEmployee!.lastName[0]}.',
+                        'Employee: ${provider.selectedEmployee!.firstName} ${provider.selectedEmployee!.lastName[0]}.',
                         style: GoogleFonts.lato(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,

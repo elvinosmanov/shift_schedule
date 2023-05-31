@@ -1,0 +1,14 @@
+com.example.shift_schedule.app-jetified-window-java-1.0.0-beta04-0 /Users/elvin/.gradle/caches/transforms-3/006d93cd422dbc43e89591147c2de572/transformed/jetified-window-java-1.0.0-beta04/res
+com.example.shift_schedule.app-core-1.6.0-1 /Users/elvin/.gradle/caches/transforms-3/4ca28c4a71705f8a687c69dda140a277/transformed/core-1.6.0/res
+com.example.shift_schedule.app-jetified-annotation-experimental-1.1.0-2 /Users/elvin/.gradle/caches/transforms-3/8965c941cf4bee4d72541b965c7c9d39/transformed/jetified-annotation-experimental-1.1.0/res
+com.example.shift_schedule.app-jetified-window-1.0.0-beta04-3 /Users/elvin/.gradle/caches/transforms-3/dee59bb480020f42d53c2ea15e4501f7/transformed/jetified-window-1.0.0-beta04/res
+com.example.shift_schedule.app-main-4 /Users/elvin/Documents/Flutter/shift_schedule/android/app/src/main/res
+com.example.shift_schedule.app-release-5 /Users/elvin/Documents/Flutter/shift_schedule/android/app/src/release/res
+com.example.shift_schedule.app-pngs-6 /Users/elvin/Documents/Flutter/shift_schedule/build/app/generated/res/pngs/release
+com.example.shift_schedule.app-resValues-7 /Users/elvin/Documents/Flutter/shift_schedule/build/app/generated/res/resValues/release
+com.example.shift_schedule.app-rs-8 /Users/elvin/Documents/Flutter/shift_schedule/build/app/generated/res/rs/release
+com.example.shift_schedule.app-mergeReleaseResources-9 /Users/elvin/Documents/Flutter/shift_schedule/build/app/intermediates/incremental/release/mergeReleaseResources/merged.dir
+com.example.shift_schedule.app-mergeReleaseResources-10 /Users/elvin/Documents/Flutter/shift_schedule/build/app/intermediates/incremental/release/mergeReleaseResources/stripped.dir
+com.example.shift_schedule.app-merged_res-11 /Users/elvin/Documents/Flutter/shift_schedule/build/app/intermediates/merged_res/release
+com.example.shift_schedule.app-packaged_res-12 /Users/elvin/Documents/Flutter/shift_schedule/build/path_provider_android/intermediates/packaged_res/release
+com.example.shift_schedule.app-packaged_res-13 /Users/elvin/Documents/Flutter/shift_schedule/build/shared_preferences_android/intermediates/packaged_res/release

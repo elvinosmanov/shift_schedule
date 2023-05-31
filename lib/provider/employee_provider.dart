@@ -1,8 +1,7 @@
 import 'dart:math';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shift_schedule/api/sheets/schedule_sheets_api.dart';
 import 'package:shift_schedule/models/employee.dart';
 import 'package:shift_schedule/models/holidays.dart';
@@ -14,6 +13,7 @@ import '../methods/global_methods.dart';
 import '../models/shift_model.dart';
 
 class EmployeesProvider extends ChangeNotifier {
+  bool internetResult = true;
   bool _uploadLoading = false;
 
   bool get uploadLoading => _uploadLoading;
@@ -72,11 +72,19 @@ class EmployeesProvider extends ChangeNotifier {
   List<Holidays?> holidays = [];
   List<int?> monthlyHours = [];
 
-  void init() {
+  Future<void> init() async {
+    await checkInternet();
     getAllEmployees();
     getHolidays();
     getMonthlyHours();
     checkUpdateStatus();
+  }
+
+  checkInternet() async {
+    if (!kIsWeb) {
+      final connectivityResult = await (Connectivity().checkConnectivity());
+     internetResult = connectivityResult != ConnectivityResult.none;
+    }
   }
 
   void getHolidays() async {
@@ -98,7 +106,6 @@ class EmployeesProvider extends ChangeNotifier {
   }
 
   Future<void> fetchMonthlyHours() async {
-    bool internetResult = await InternetConnectionChecker().hasConnection;
     if (internetResult) {
       monthlyHours = await ScheduleSheetsApi.fetchMonthlyHours();
       DatabaseHelper.saveMonthlyHours(monthlyHours);
@@ -106,8 +113,6 @@ class EmployeesProvider extends ChangeNotifier {
   }
 
   Future<void> fetchHolidays() async {
-    bool internetResult = await InternetConnectionChecker().hasConnection;
-
     if (internetResult) {
       holidays = await ScheduleSheetsApi.fetchHolidays();
       DatabaseHelper.saveHolidays(holidays);
@@ -115,7 +120,6 @@ class EmployeesProvider extends ChangeNotifier {
   }
 
   void getAllEmployees() async {
-    bool internetResult = await InternetConnectionChecker().hasConnection;
     final result = await DatabaseHelper.getEmployeeList();
 
     if (result.isNotEmpty) {
@@ -146,7 +150,6 @@ class EmployeesProvider extends ChangeNotifier {
   }
 
   checkUpdateStatus() async {
-    bool internetResult = await InternetConnectionChecker().hasConnection;
     if (!internetResult) return;
     final savedDate = await DatabaseHelper.getDate();
     final date = await ScheduleSheetsApi.fetchUpdatedDate();

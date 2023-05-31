@@ -14,12 +14,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => EmployeesProvider()
-        ..init()
-        ,
+      create: (context) => EmployeesProvider()..init(),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'My App',
+        title: 'Space Shift',
         home: Consumer<EmployeesProvider>(
           builder: (context, value, child) {
             return value.dailyShiftsList.isEmpty ? const LoadingEmployee() : const HomePage();
