@@ -42,7 +42,14 @@ class EmployeesProvider extends ChangeNotifier {
   }
 
   DateTime beginningOfMonth = DateTime(DateTime.now().year, DateTime.now().month, 1);
-  List<DailyShifts> dailyShiftsList = [];
+  List<DailyShifts> _dailyShiftsList = [];
+
+  List<DailyShifts> get dailyShiftsList => _dailyShiftsList;
+
+  set dailyShiftsList(List<DailyShifts> value) {
+    _dailyShiftsList = value;
+    notifyListeners();
+  }
 
   List<double> scrollOffsets = [];
 
