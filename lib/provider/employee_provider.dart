@@ -81,7 +81,7 @@ class EmployeesProvider extends ChangeNotifier {
 
   Future<void> init() async {
     await checkInternet();
-    getAllEmployees();
+    await getAllEmployees();
     getHolidays();
     getMonthlyHours();
     checkUpdateStatus();
@@ -126,14 +126,14 @@ class EmployeesProvider extends ChangeNotifier {
     }
   }
 
-  void getAllEmployees() async {
+  Future<void> getAllEmployees() async {
     final result = await DatabaseHelper.getEmployeeList();
 
     if (result.isNotEmpty) {
       employees = result;
     } else {
       if (internetResult) {
-        fetchEmployees();
+       await fetchEmployees();
       }
     }
     if (employees.isNotEmpty) {

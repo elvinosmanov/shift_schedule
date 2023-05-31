@@ -30,6 +30,19 @@
       externalAnnotations="annotations.zip"
       proguardRules="proguard.txt"/>
   <library
+      name="/Users/elvin/Documents/Flutter/shift_schedule/android@@:connectivity_plus::release"
+      jars="/Users/elvin/Documents/Flutter/shift_schedule/build/connectivity_plus/.transforms/a4b952459bd46dffaf5f61fc997e2ec4/transformed/out/jars/classes.jar"
+      resolved="io.flutter.plugins.connectivity:connectivity_plus:unspecified"
+      folder="/Users/elvin/Documents/Flutter/shift_schedule/build/connectivity_plus/.transforms/a4b952459bd46dffaf5f61fc997e2ec4/transformed/out"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
       name="io.flutter:flutter_embedding_release:1.0.0-90fa3ae28fe6ddaee1af2c120f01e50201c1401b@jar"
       jars="/Users/elvin/.gradle/caches/modules-2/files-2.1/io.flutter/flutter_embedding_release/1.0.0-90fa3ae28fe6ddaee1af2c120f01e50201c1401b/8ebd1d5aced07af8290ba8057707ded1b704bd6/flutter_embedding_release-1.0.0-90fa3ae28fe6ddaee1af2c120f01e50201c1401b.jar"
       resolved="io.flutter:flutter_embedding_release:1.0.0-90fa3ae28fe6ddaee1af2c120f01e50201c1401b"/>

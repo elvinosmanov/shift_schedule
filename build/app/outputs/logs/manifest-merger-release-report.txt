@@ -23,6 +23,7 @@ INJECTED from /Users/elvin/Documents/Flutter/shift_schedule/android/app/src/main
 INJECTED from /Users/elvin/Documents/Flutter/shift_schedule/android/app/src/main/AndroidManifest.xml:1:1-36:12
 MERGED from [:shared_preferences_android] /Users/elvin/Documents/Flutter/shift_schedule/build/shared_preferences_android/intermediates/merged_manifest/release/AndroidManifest.xml:2:1-9:12
 MERGED from [:path_provider_android] /Users/elvin/Documents/Flutter/shift_schedule/build/path_provider_android/intermediates/merged_manifest/release/AndroidManifest.xml:2:1-9:12
+MERGED from [:connectivity_plus] /Users/elvin/Documents/Flutter/shift_schedule/build/connectivity_plus/intermediates/merged_manifest/release/AndroidManifest.xml:2:1-11:12
 MERGED from [androidx.window:window-java:1.0.0-beta04] /Users/elvin/.gradle/caches/transforms-3/006d93cd422dbc43e89591147c2de572/transformed/jetified-window-java-1.0.0-beta04/AndroidManifest.xml:17:1-23:12
 MERGED from [androidx.window:window:1.0.0-beta04] /Users/elvin/.gradle/caches/transforms-3/dee59bb480020f42d53c2ea15e4501f7/transformed/jetified-window-1.0.0-beta04/AndroidManifest.xml:17:1-33:12
 MERGED from [androidx.fragment:fragment:1.1.0] /Users/elvin/.gradle/caches/transforms-3/9354257804af8250f2ffb7c22e2892d5/transformed/fragment-1.1.0/AndroidManifest.xml:17:1-24:12
@@ -69,6 +70,8 @@ MERGED from [:shared_preferences_android] /Users/elvin/Documents/Flutter/shift_s
 MERGED from [:shared_preferences_android] /Users/elvin/Documents/Flutter/shift_schedule/build/shared_preferences_android/intermediates/merged_manifest/release/AndroidManifest.xml:5:5-7:41
 MERGED from [:path_provider_android] /Users/elvin/Documents/Flutter/shift_schedule/build/path_provider_android/intermediates/merged_manifest/release/AndroidManifest.xml:5:5-7:41
 MERGED from [:path_provider_android] /Users/elvin/Documents/Flutter/shift_schedule/build/path_provider_android/intermediates/merged_manifest/release/AndroidManifest.xml:5:5-7:41
+MERGED from [:connectivity_plus] /Users/elvin/Documents/Flutter/shift_schedule/build/connectivity_plus/intermediates/merged_manifest/release/AndroidManifest.xml:5:5-7:41
+MERGED from [:connectivity_plus] /Users/elvin/Documents/Flutter/shift_schedule/build/connectivity_plus/intermediates/merged_manifest/release/AndroidManifest.xml:5:5-7:41
 MERGED from [androidx.window:window-java:1.0.0-beta04] /Users/elvin/.gradle/caches/transforms-3/006d93cd422dbc43e89591147c2de572/transformed/jetified-window-java-1.0.0-beta04/AndroidManifest.xml:19:5-21:41
 MERGED from [androidx.window:window-java:1.0.0-beta04] /Users/elvin/.gradle/caches/transforms-3/006d93cd422dbc43e89591147c2de572/transformed/jetified-window-java-1.0.0-beta04/AndroidManifest.xml:19:5-21:41
 MERGED from [androidx.window:window:1.0.0-beta04] /Users/elvin/.gradle/caches/transforms-3/dee59bb480020f42d53c2ea15e4501f7/transformed/jetified-window-1.0.0-beta04/AndroidManifest.xml:20:5-22:41
@@ -151,6 +154,10 @@ ADDED from /Users/elvin/Documents/Flutter/shift_schedule/android/app/src/main/An
 		ADDED from /Users/elvin/Documents/Flutter/shift_schedule/android/app/src/main/AndroidManifest.xml:34:13-30
 	android:name
 		ADDED from /Users/elvin/Documents/Flutter/shift_schedule/android/app/src/main/AndroidManifest.xml:33:13-44
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from [:connectivity_plus] /Users/elvin/Documents/Flutter/shift_schedule/build/connectivity_plus/intermediates/merged_manifest/release/AndroidManifest.xml:9:5-79
+	android:name
+		ADDED from [:connectivity_plus] /Users/elvin/Documents/Flutter/shift_schedule/build/connectivity_plus/intermediates/merged_manifest/release/AndroidManifest.xml:9:22-76
 uses-library#androidx.window.extensions
 ADDED from [androidx.window:window:1.0.0-beta04] /Users/elvin/.gradle/caches/transforms-3/dee59bb480020f42d53c2ea15e4501f7/transformed/jetified-window-1.0.0-beta04/AndroidManifest.xml:25:9-27:40
 	android:required
