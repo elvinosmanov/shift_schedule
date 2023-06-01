@@ -1,4 +1,4 @@
-#Thu Jun 01 18:14:02 AZT 2023
+#Thu Jun 01 21:44:07 AZT 2023
 base.0=/Users/elvin/Documents/Flutter/shift_schedule/build/app/intermediates/dex/release/minifyReleaseWithR8/classes.dex
 renamed.0=classes.dex
 path.0=classes.dex

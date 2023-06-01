@@ -224,8 +224,9 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                     height: 132,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children:
-                          ShiftStatus.values.map((e) => buildShiftStatusText(e, index)).toList(),
+                      children: ShiftStatus.values.map((e) {
+                        return buildShiftStatusText(e, index);
+                      }).toList(),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -335,7 +336,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     final provider = context.read<EmployeesProvider>();
     if (provider.shiftCount.length > provider.selectedEmployee!.id - 1 &&
         provider.shiftCount[provider.selectedEmployee!.id - 1].length > index) {
-      return provider.shiftCount[provider.selectedEmployee!.id - 1][index][shiftStatus.toString()];
+      return provider.shiftCount[provider.selectedEmployee!.id - 1][index][shiftStatus];
     }
     return null;
   }

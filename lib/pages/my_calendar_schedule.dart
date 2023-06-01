@@ -66,7 +66,7 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                   return Container();
                 }
                 final dailyShift = provider.dailyShiftsList[gridIndex - startWeekday];
-                bool isHoliday = provider.isHolidayToday(dailyShift.date);
+                bool isHoliday =  provider.isHolidayToday(dailyShift.date);
                 final isToday = GlobalMethods.isSameDate(DateTime.now(), dailyShift.date);
                 Color color = Colors.grey[100]!;
                 final shiftStatus = whichShiftStatus(dailyShift.shiftEmployees);

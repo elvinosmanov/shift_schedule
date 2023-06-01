@@ -57,7 +57,7 @@ class EmployeesProvider extends ChangeNotifier {
 
   List<Employee> get employees => _employees;
 
-  List<List<Map<String, int>>> shiftCount = [];
+  List<List<Map<ShiftStatus, int>>> shiftCount = [];
 
   set employees(List<Employee> value) {
     _employees = value;
@@ -81,9 +81,9 @@ class EmployeesProvider extends ChangeNotifier {
 
   Future<void> init() async {
     await checkInternet();
+    await getHolidays();
+    await getMonthlyHours();
     await getAllEmployees();
-    getHolidays();
-    getMonthlyHours();
     checkUpdateStatus();
   }
 
@@ -94,7 +94,7 @@ class EmployeesProvider extends ChangeNotifier {
     }
   }
 
-  void getHolidays() async {
+  Future<void> getHolidays() async {
     List<Holidays> result = await DatabaseHelper.getHolidays();
     if (result.isEmpty) {
       await fetchHolidays();
@@ -103,7 +103,7 @@ class EmployeesProvider extends ChangeNotifier {
     }
   }
 
-  void getMonthlyHours() async {
+  Future<void> getMonthlyHours() async {
     var result = await DatabaseHelper.getMonthlyHours();
     if (result.isEmpty) {
       await fetchMonthlyHours();
@@ -187,10 +187,7 @@ class EmployeesProvider extends ChangeNotifier {
           ifAbsent: () => [employee],
         );
         fillShiftCount(
-            index: index,
-            isHoliday: isHolidayToday(currentDate),
-            monthInt: currentDate.month,
-            shift: shiftStatus);
+            index: index, date: currentDate, shift: checkShiftForHoliday(currentDate, shiftStatus));
         index++;
       }
       if (dailyShifts.shiftEmployees.containsKey(ShiftStatus.day) &&
@@ -219,10 +216,9 @@ class EmployeesProvider extends ChangeNotifier {
   }
 
   bool isHolidayToday(DateTime date) {
-    if (holidays.isNotEmpty) {
-      return holidays.indexWhere((element) => GlobalMethods.isSameDate(element!.date, date)) >= 0;
-    }
-    return false;
+    final findIndex =
+        holidays.indexWhere((element) => GlobalMethods.isSameDate(element!.date, date));
+    return findIndex >= 0;
   }
 
   updateDatabase() async {
@@ -236,12 +232,25 @@ class EmployeesProvider extends ChangeNotifier {
     hasUpdate = false;
   }
 
-  void fillShiftCount(
-      {required int monthInt,
-      required ShiftStatus shift,
-      required bool isHoliday,
-      required int index}) {
-    if (isHoliday) {
+  void fillShiftCount({required DateTime date, required ShiftStatus shift, required int index}) {
+    // print(shift);
+    if (beginningOfMonth.month == date.month) {
+      shiftCount[index][0].update(
+        shift,
+        (value) => value + 1,
+        ifAbsent: () => 1,
+      );
+    } else {
+      shiftCount[index][1].update(
+        shift,
+        (value) => value + 1,
+        ifAbsent: () => 1,
+      );
+    }
+  }
+
+  ShiftStatus checkShiftForHoliday(DateTime date, ShiftStatus shift) {
+    if (isHolidayToday(date) == true) {
       if (shift == ShiftStatus.day || shift == ShiftStatus.night) {
         shift = ShiftStatus.holidayDay;
       } else if (shift == ShiftStatus.nightIn) {
@@ -250,19 +259,6 @@ class EmployeesProvider extends ChangeNotifier {
         shift = ShiftStatus.holidayOut;
       }
     }
-
-    if (beginningOfMonth.month == monthInt) {
-      shiftCount[index][0].update(
-        shift.toString(),
-        (value) => value + 1,
-        ifAbsent: () => 1,
-      );
-    } else {
-      shiftCount[index][1].update(
-        shift.toString(),
-        (value) => value + 1,
-        ifAbsent: () => 1,
-      );
-    }
+    return shift;
   }
 }
