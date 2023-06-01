@@ -85,12 +85,13 @@ class _MyCalendarScheduleState extends State<MyCalendarSchedule> {
                   case ShiftStatus.night:
                     color = kNightColorPri;
                     break;
-                  case ShiftStatus.regular:
-                    color = Colors.green[200]!;
-                    break;
                   case ShiftStatus.regularShort:
                     color = Colors.green[100]!;
                     break;
+                  case ShiftStatus.regular:
+                    color = Colors.green[200]!;
+                    break;
+
                   case ShiftStatus.vacation:
                     color = const Color.fromARGB(255, 177, 120, 243);
                     break;

@@ -25,7 +25,6 @@ class ScheduleSheetsApi {
   static Future fetchAllEmployees() async {
     final spreadsheet = await _gsheets.spreadsheet(_spreadsheetId);
     final scheduleSheet = _getWorkSheet(spreadsheet, title: 'Sheet1');
-    print(";girdi");
     try {
       var values = await scheduleSheet.values.allRows();
       // var numRows = values.length;

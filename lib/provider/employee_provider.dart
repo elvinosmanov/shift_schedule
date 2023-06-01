@@ -90,7 +90,7 @@ class EmployeesProvider extends ChangeNotifier {
   checkInternet() async {
     if (!kIsWeb) {
       final connectivityResult = await (Connectivity().checkConnectivity());
-     internetResult = connectivityResult != ConnectivityResult.none;
+      internetResult = connectivityResult != ConnectivityResult.none;
     }
   }
 
@@ -133,7 +133,7 @@ class EmployeesProvider extends ChangeNotifier {
       employees = result;
     } else {
       if (internetResult) {
-       await fetchEmployees();
+        await fetchEmployees();
       }
     }
     if (employees.isNotEmpty) {
@@ -186,7 +186,6 @@ class EmployeesProvider extends ChangeNotifier {
           (value) => value..add(employee),
           ifAbsent: () => [employee],
         );
-
         fillShiftCount(
             index: index,
             isHoliday: isHolidayToday(currentDate),

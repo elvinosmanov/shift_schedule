@@ -55,6 +55,7 @@ class _EmployeeTimeLineState extends State<EmployeeTimeLine> {
     );
     if (index < 0) return;
     _scrollController.animateTo(
+      index==0?0:
       provider.scrollOffsets[index - 1],
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeOut,
